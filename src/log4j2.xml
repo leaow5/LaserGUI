@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- trace or OFF -->
+<!-- trace<debug<info<warn<error<fatal -->
+<configuration status="OFF">
+	<appenders>
+		<File name="ErrorFile" fileName="logs/error.log">
+			<ThresholdFilter level="error" onMatch="ACCEPT"
+				onMismatch="DENY" />
+			<PatternLayout
+				pattern="%d{yyyy.MM.dd 'at' HH:mm:ss z} %-5level %class{36} %L %M - %msg%xEx%n" />
+		</File>
+		<RollingFile name="RollingFile" fileName="./logs/system.log" 
+			append="true" filePattern="logs/$${date:yyyy-MM}/app-%d{MM-dd-yyyy}-%i.log.gz">
+			<PatternLayout
+				pattern="%d{yyyy.MM.dd 'at' HH:mm:ss z} %-5level %class{36} %L %M - %msg%xEx%n" />
+
+			<!-- ThresholdFilter level="trace" onMatch="ACCEPT" onMismatch="DENY"/ -->
+
+			<Policies>
+				<TimeBasedTriggeringPolicy />
+				<SizeBasedTriggeringPolicy size="250 MB" />
+			</Policies>
+
+			<DefaultRolloverStrategy max="20" />
+		</RollingFile>
+	</appenders>
+	<loggers>
+		<!-- root是默认的，如果需要其他的，要单独配置logger, additivity则使指是否输出到顶层包定义的Appender中-->
+		<!-- logger name="cn.lsw.base.log4j2.Hello" level="trace" additivity="false">
+            <appender-ref ref="Console"/>
+        </logger -->
+        
+		<root level="debug">
+			<appender-ref ref="RollingFile" />
+		</root>
+	</loggers>
+</configuration>
