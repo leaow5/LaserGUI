@@ -4,38 +4,45 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
-import java.awt.Frame;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Enumeration;
 
+import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jvnet.substance.SubstanceLookAndFeel;
 import org.jvnet.substance.api.SubstanceSkin;
 import org.jvnet.substance.skin.BusinessBlueSteelSkin;
 import org.jvnet.substance.skin.SubstanceBusinessBlueSteelLookAndFeel;
 
-import javax.swing.border.TitledBorder;
-import javax.swing.JRadioButton;
-import java.awt.Font;
+import com.spark.core.CommandLineCallBack;
+import com.spark.core.SerialPortFactory;
+import com.spark.utils.StringTransformUtil;
 
 public class ModeSwitchUI extends JDialog {
 
+	private Logger logger = LogManager.getLogger(getClass().getName());
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
+
 	JRadioButton db25ModeButton;
 	JRadioButton rs232ModeButton;
 	JRadioButton gateModeButton;
-	JButton okButton ;
+	JButton okButton;
 	JButton cancelButton;
 	MyFrame parent;
 
@@ -61,55 +68,58 @@ public class ModeSwitchUI extends JDialog {
 	public ModeSwitchUI(MyFrame owner) {
 		super(owner, true);
 		this.parent = owner;
-        init();
+		init();
 	}
-	
+
 	private void init() {
-		
+
 		setStyle();
-		
+
 		handleFrameAttr();
-		
+
 		handleContent();
-		
+
 		handleOkEvent();
-		
+
 		handleCancelEvent();
-		
+
 	}
 
 	private void handleContent() {
 		JPanel contentPanel = new MyPanel();
 		contentPanel.setToolTipText("Control Interface");
 		setTitle("Mode Switch");
-//		setBounds(100, 100, 450, 300);
+		// setBounds(100, 100, 450, 300);
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
 		contentPanel.setLayout(new BorderLayout(0, 0));
 		{
 			JPanel panel = new MyPanel();
-			panel.setBorder(new TitledBorder(null, "Control Interface", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+			panel.setBorder(
+					new TitledBorder(null, "Control Interface", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 			contentPanel.add(panel, BorderLayout.CENTER);
 			panel.setLayout(null);
-			
+
 			db25ModeButton = new JRadioButton("DB25 Mode");
 			db25ModeButton.setBounds(16, 22, 121, 23);
 			panel.add(db25ModeButton);
-			
+
 			rs232ModeButton = new JRadioButton("RS232 Control Interface");
 			rs232ModeButton.setBounds(234, 22, 163, 23);
 			panel.add(rs232ModeButton);
-			
+
 			gateModeButton = new JRadioButton("GATE Mode");
 			gateModeButton.setBounds(16, 47, 121, 23);
 			panel.add(gateModeButton);
-			
+
 			ButtonGroup group = new ButtonGroup();
 			group.add(db25ModeButton);
 			group.add(rs232ModeButton);
 			group.add(gateModeButton);
 			
+			db25ModeButton.setSelected(true);//默认选中的是b1
+
 		}
 		{
 			JPanel buttonPane = new MyPanel();
@@ -130,16 +140,15 @@ public class ModeSwitchUI extends JDialog {
 			}
 		}
 	}
+
 	/**
 	 * 确认
 	 */
 	private void handleOkEvent() {
-		
-		
-		
-		//TODO
+
+		// TODO
 		okButton.addActionListener(new ActionListener() {
-					
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				int mode = 1;
@@ -158,12 +167,13 @@ public class ModeSwitchUI extends JDialog {
 			}
 		});
 	}
+
 	/**
 	 * 取消
 	 */
 	private void handleCancelEvent() {
 		cancelButton.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				ModeSwitchUI.this.setVisible(false);
@@ -175,16 +185,14 @@ public class ModeSwitchUI extends JDialog {
 		setSize(450, 300);
 		setTitle("安扬 AOTF Controller");
 		Dimension screen = getToolkit().getScreenSize(); // 得到屏幕尺寸
-		setLocation((screen.width - getSize().width) / 2,
-				(screen.height - getSize().height) / 2); // 设置窗口位置
+		setLocation((screen.width - getSize().width) / 2, (screen.height - getSize().height) / 2); // 设置窗口位置
 	}
-	
+
 	private void setStyle() {
 		SubstanceSkin skin = new BusinessBlueSteelSkin(); // 初始化有水印的皮肤
 
 		try {
-			UIManager
-					.setLookAndFeel(new SubstanceBusinessBlueSteelLookAndFeel());
+			UIManager.setLookAndFeel(new SubstanceBusinessBlueSteelLookAndFeel());
 		} catch (UnsupportedLookAndFeelException e) {
 			e.printStackTrace();
 		}

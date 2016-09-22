@@ -45,7 +45,9 @@ import org.jvnet.substance.api.SubstanceSkin;
 import org.jvnet.substance.skin.BusinessBlueSteelSkin;
 import org.jvnet.substance.skin.SubstanceBusinessBlueSteelLookAndFeel;
 
+import com.spark.core.ComponentRepaintCallBack;
 import com.spark.core.SerialPortFactory;
+import com.spark.utils.StringTransformUtil;
 import com.spark.utils.WinEnvUtils;
 
 public class MyFrame extends JFrame {
@@ -114,6 +116,7 @@ public class MyFrame extends JFrame {
 	private JComboBox<String> comboBox;
 	private Logger logger = LogManager.getLogger(getClass().getName());
 	static private MyFrame frame;
+	private volatile RunTimeContext context = new RunTimeContext();
 
 	/**
 	 * Launch the application.
@@ -262,7 +265,32 @@ public class MyFrame extends JFrame {
 				TitledBorder.LEADING, TitledBorder.TOP, null, SystemColor.desktop));
 		panel_ItemType.setBounds(300, 10, 91, 74);
 		panel_RS232_SR.add(panel_ItemType);
+		
+		//定制发送消息：应该是握手协议
+		PropertiesUtil props = PropertiesUtil.getDefaultOrderPro();
+		ComponentRepaintCallBack crcb = new ComponentRepaintCallBack(panel_ItemType) {
+			@Override
+			public void execute(Object... objects) {
 
+				if (objects.length == 0) {
+					return;
+				}
+				//消息，后面会使用
+//				String mess = objects[0].toString();
+				//目标控件
+				JPanel target = (JPanel) getComponent();
+				((TitledBorder)target.getBorder()).setTitle("SC-OEM");
+				target.repaint();
+			}
+
+		};
+		//握手关键字
+		String macOrder = props.getProperty("HANDSHAKE_ORDER");
+		crcb.setOrderMessage(StringTransformUtil.hexToBytes(macOrder));
+		crcb.setPriority(0);
+		SerialPortFactory.sendMessage(crcb);
+		//结束
+		
 		btnMode = new JButton("MODE");
 		btnMode.setBounds(401, 19, 91, 64);
 		panel_RS232_SR.add(btnMode);
@@ -1368,13 +1396,6 @@ public class MyFrame extends JFrame {
 			try {
 				SerialPortFactory.connect(portName);
 				logger.info("[INFO:" + portName + "端口已连接]");
-				logger.info("[INFO:" + portName + "端口已连接]");
-				logger.info("[INFO:" + portName + "端口已连接]");
-				logger.info("[INFO:" + portName + "端口已连接]");
-				logger.info("[INFO:" + portName + "端口已连接]");
-				logger.info("[INFO:" + portName + "端口已连接]");
-				logger.info("[INFO:" + portName + "端口已连接]");
-				logger.info("[INFO:" + portName + "端口已连接]");
 			} catch (Exception ex) {
 				logger.error("打开连接时发生异常", ex);
 				frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
@@ -1454,7 +1475,6 @@ public class MyFrame extends JFrame {
 		btnMode.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-
 				EventQueue.invokeLater(new Runnable() {
 					public void run() {
 						try {
@@ -1465,7 +1485,6 @@ public class MyFrame extends JFrame {
 						}
 					}
 				});
-
 			}
 		});
 	}
