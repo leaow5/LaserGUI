@@ -265,8 +265,8 @@ public class MyFrame extends JFrame {
 				TitledBorder.LEADING, TitledBorder.TOP, null, SystemColor.desktop));
 		panel_ItemType.setBounds(300, 10, 91, 74);
 		panel_RS232_SR.add(panel_ItemType);
-		
-		//定制发送消息：应该是握手协议
+
+		// 定制发送消息：应该是握手协议
 		PropertiesUtil props = PropertiesUtil.getDefaultOrderPro();
 		ComponentRepaintCallBack crcb = new ComponentRepaintCallBack(panel_ItemType) {
 			@Override
@@ -275,22 +275,22 @@ public class MyFrame extends JFrame {
 				if (objects.length == 0) {
 					return;
 				}
-				//消息，后面会使用
-//				String mess = objects[0].toString();
-				//目标控件
+				// 消息，后面会使用
+				// String mess = objects[0].toString();
+				// 目标控件
 				JPanel target = (JPanel) getComponent();
-				((TitledBorder)target.getBorder()).setTitle("SC-OEM");
+				((TitledBorder) target.getBorder()).setTitle("SC-OEM");
 				target.repaint();
 			}
 
 		};
-		//握手关键字
+		// 握手关键字
 		String macOrder = props.getProperty("HANDSHAKE_ORDER");
 		crcb.setOrderMessage(StringTransformUtil.hexToBytes(macOrder));
 		crcb.setPriority(0);
 		SerialPortFactory.sendMessage(crcb);
-		//结束
-		
+		// 结束
+
 		btnMode = new JButton("MODE");
 		btnMode.setBounds(401, 19, 91, 64);
 		panel_RS232_SR.add(btnMode);
@@ -453,16 +453,35 @@ public class MyFrame extends JFrame {
 		panel_RS232.setBounds(8, 84, 484, 74);
 		panel_RS232_SR.add(panel_RS232);
 
+		final JLabel label_LaserON = new JLabel(icon_green);
+		final JLabel label_LaserOFF = new JLabel(icon_dark);
+
+		// 激光开启&关闭按钮
 		JButton button_Laser = new JButton("Laser ON");
 		button_Laser.setBounds(80, 22, 120, 42);
 		panel_RS232.add(button_Laser);
+		// 绑定消息
+		button_Laser.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// 获取当前状态：判断是label_LaserON的mage
+				if (label_LaserON.getIcon() == icon_green) {
+					// TODO 说明当前是开启状态，发送关闭命令
+					label_LaserON.setIcon(icon_dark);
+					label_LaserOFF.setIcon(icon_green);
+				} else {
+					// TODO 说明当前是关闭状态，发送开启命令
+					label_LaserON.setIcon(icon_green);
+					label_LaserOFF.setIcon(icon_dark);
+				}
+				panel_RS232_SR.repaint();
+			}
+		});
 
 		JButton button_GuildLaser = new JButton("Guild Laser ON");
 		button_GuildLaser.setEnabled(false);
 		button_GuildLaser.setBounds(354, 22, 120, 42);
 		panel_RS232.add(button_GuildLaser);
 
-		JLabel label_LaserON = new JLabel(icon_green);
 		label_LaserON.setBounds(10, 22, 20, 20);
 		panel_RS232.add(label_LaserON);
 
@@ -472,7 +491,6 @@ public class MyFrame extends JFrame {
 		lblOn.setBounds(35, 22, 40, 20);
 		panel_RS232.add(lblOn);
 
-		JLabel label_LaserOFF = new JLabel(icon_dark);
 		label_LaserOFF.setBounds(10, 44, 20, 20);
 		panel_RS232.add(label_LaserOFF);
 
@@ -522,7 +540,7 @@ public class MyFrame extends JFrame {
 
 		textField_outputPower = new JTextField("0");
 		textField_outputPower.setHorizontalAlignment(SwingConstants.RIGHT);
-		textField_outputPower.setEditable(false);
+//		textField_outputPower.setEditable(true);
 		textField_outputPower.setColumns(10);
 		textField_outputPower.setBounds(330, 28, 55, 21);
 		panel_outputPower.add(textField_outputPower);
@@ -560,7 +578,7 @@ public class MyFrame extends JFrame {
 
 		textField = new JTextField("0");
 		textField.setHorizontalAlignment(SwingConstants.RIGHT);
-		textField.setEditable(false);
+//		textField.setEditable(false);
 		textField.setColumns(10);
 		textField.setBounds(330, 28, 55, 21);
 		panel_PRR_EM.add(textField);
@@ -587,16 +605,25 @@ public class MyFrame extends JFrame {
 		JLabel lblNewLabel_2 = new JLabel("Command:");
 		lblNewLabel_2.setBounds(10, 15, 70, 15);
 		panel_1.add(lblNewLabel_2);
-
+		
 		textField_RS232_Send = new JTextField();
 		textField_RS232_Send.setBounds(10, 35, 350, 21);
 		panel_1.add(textField_RS232_Send);
 		textField_RS232_Send.setColumns(10);
-
-		JButton btnRS232_Send = new JButton("Send");
+		
+		//命令行发送按钮
+		final JButton btnRS232_Send = new JButton("Send");
 		btnRS232_Send.setBounds(370, 34, 93, 23);
 		panel_1.add(btnRS232_Send);
-
+		//命令绑定事件
+		btnRS232_Send.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO 发送命令
+				// TODO 将接受到的命令展示到textField_ReplyFromDevice
+				
+			}
+		});
 		JLabel lblReplyFromDevice = new JLabel("Reply from device:");
 		lblReplyFromDevice.setBounds(10, 58, 120, 15);
 		panel_1.add(lblReplyFromDevice);
@@ -1494,10 +1521,9 @@ public class MyFrame extends JFrame {
 	 */
 	private void bindOutputSendEvent() {
 		btnOutputSend.addActionListener(new ActionListener() {
-
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+				// TODO 发送out power命令
 
 			}
 		});
@@ -1511,8 +1537,7 @@ public class MyFrame extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-
+				// TODO 发送PLUS 命令
 			}
 		});
 	}

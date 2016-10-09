@@ -7,9 +7,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Enumeration;
 
-import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -26,10 +24,6 @@ import org.jvnet.substance.SubstanceLookAndFeel;
 import org.jvnet.substance.api.SubstanceSkin;
 import org.jvnet.substance.skin.BusinessBlueSteelSkin;
 import org.jvnet.substance.skin.SubstanceBusinessBlueSteelLookAndFeel;
-
-import com.spark.core.CommandLineCallBack;
-import com.spark.core.SerialPortFactory;
-import com.spark.utils.StringTransformUtil;
 
 public class ModeSwitchUI extends JDialog {
 
