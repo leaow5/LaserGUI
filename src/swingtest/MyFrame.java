@@ -453,8 +453,8 @@ public class MyFrame extends JFrame {
 		panel_RS232.setBounds(8, 84, 484, 74);
 		panel_RS232_SR.add(panel_RS232);
 
-		final JLabel label_LaserON = new JLabel(icon_green);
-		final JLabel label_LaserOFF = new JLabel(icon_dark);
+		final JLabel label_LaserON = new JLabel(icon_dark);
+		final JLabel label_LaserOFF = new JLabel(icon_green);
 
 		// 激光开启&关闭按钮
 		JButton button_Laser = new JButton("Laser ON");
@@ -500,11 +500,11 @@ public class MyFrame extends JFrame {
 		lblOff.setBounds(35, 44, 40, 20);
 		panel_RS232.add(lblOff);
 
-		JLabel label_GLaserOFF = new JLabel(icon_dark);
+		JLabel label_GLaserOFF = new JLabel(icon_green);
 		label_GLaserOFF.setBounds(282, 44, 20, 20);
 		panel_RS232.add(label_GLaserOFF);
 
-		JLabel label_GLaserON = new JLabel(icon_green);
+		JLabel label_GLaserON = new JLabel(icon_dark);
 		label_GLaserON.setBounds(282, 22, 20, 20);
 		panel_RS232.add(label_GLaserON);
 
@@ -621,7 +621,7 @@ public class MyFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				// TODO 发送命令
 				// TODO 将接受到的命令展示到textField_ReplyFromDevice
-				
+				textField_ReplyFromDevice.setText("this is a test.");
 			}
 		});
 		JLabel lblReplyFromDevice = new JLabel("Reply from device:");
@@ -1359,7 +1359,7 @@ public class MyFrame extends JFrame {
 	 * 连接事件
 	 */
 	private void bindConnectEvent() {
-		// TODO 处理连接逻辑
+		// TODO 处理连接逻辑??
 		// 连接事件
 		btnConnect.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
