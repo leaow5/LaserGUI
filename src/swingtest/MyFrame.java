@@ -45,6 +45,7 @@ import org.jvnet.substance.api.SubstanceSkin;
 import org.jvnet.substance.skin.BusinessBlueSteelSkin;
 import org.jvnet.substance.skin.SubstanceBusinessBlueSteelLookAndFeel;
 
+import com.spark.core.CommandLineCallBack;
 import com.spark.core.ComponentRepaintCallBack;
 import com.spark.core.SerialPortFactory;
 import com.spark.utils.StringTransformUtil;
@@ -466,10 +467,22 @@ public class MyFrame extends JFrame {
 				// 获取当前状态：判断是label_LaserON的mage
 				if (label_LaserON.getIcon() == icon_green) {
 					// TODO 说明当前是开启状态，发送关闭命令
+					CommandLineCallBack ccb = new CommandLineCallBack();
+					String macOrder = "";
+					ccb.setOrderMessage(StringTransformUtil.hexToBytes(macOrder));
+					ccb.setPriority(0);
+					SerialPortFactory.sendMessage(ccb);
+					// 结束
 					label_LaserON.setIcon(icon_dark);
 					label_LaserOFF.setIcon(icon_green);
 				} else {
 					// TODO 说明当前是关闭状态，发送开启命令
+					CommandLineCallBack ccb = new CommandLineCallBack();
+					String macOrder = "";
+					ccb.setOrderMessage(StringTransformUtil.hexToBytes(macOrder));
+					ccb.setPriority(0);
+					SerialPortFactory.sendMessage(ccb);
+					// 结束
 					label_LaserON.setIcon(icon_green);
 					label_LaserOFF.setIcon(icon_dark);
 				}
@@ -540,7 +553,7 @@ public class MyFrame extends JFrame {
 
 		textField_outputPower = new JTextField("0");
 		textField_outputPower.setHorizontalAlignment(SwingConstants.RIGHT);
-//		textField_outputPower.setEditable(true);
+		// textField_outputPower.setEditable(true);
 		textField_outputPower.setColumns(10);
 		textField_outputPower.setBounds(330, 28, 55, 21);
 		panel_outputPower.add(textField_outputPower);
@@ -578,7 +591,7 @@ public class MyFrame extends JFrame {
 
 		textField = new JTextField("0");
 		textField.setHorizontalAlignment(SwingConstants.RIGHT);
-//		textField.setEditable(false);
+		// textField.setEditable(false);
 		textField.setColumns(10);
 		textField.setBounds(330, 28, 55, 21);
 		panel_PRR_EM.add(textField);
@@ -605,17 +618,17 @@ public class MyFrame extends JFrame {
 		JLabel lblNewLabel_2 = new JLabel("Command:");
 		lblNewLabel_2.setBounds(10, 15, 70, 15);
 		panel_1.add(lblNewLabel_2);
-		
+
 		textField_RS232_Send = new JTextField();
 		textField_RS232_Send.setBounds(10, 35, 350, 21);
 		panel_1.add(textField_RS232_Send);
 		textField_RS232_Send.setColumns(10);
-		
-		//命令行发送按钮
+
+		// 命令行发送按钮
 		final JButton btnRS232_Send = new JButton("Send");
 		btnRS232_Send.setBounds(370, 34, 93, 23);
 		panel_1.add(btnRS232_Send);
-		//命令绑定事件
+		// 命令绑定事件
 		btnRS232_Send.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -1546,6 +1559,6 @@ public class MyFrame extends JFrame {
 	 * 处理连接内容，每500ms进行一次连接通信
 	 */
 	private void dealConnect() {
-		// TODO
+		// TODO 暂时不需要
 	}
 }
