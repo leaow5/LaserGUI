@@ -12,6 +12,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.util.List;
+import java.util.Timer;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -36,6 +37,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -45,7 +47,6 @@ import org.jvnet.substance.api.SubstanceSkin;
 import org.jvnet.substance.skin.BusinessBlueSteelSkin;
 import org.jvnet.substance.skin.SubstanceBusinessBlueSteelLookAndFeel;
 
-import com.spark.core.CommandLineCallBack;
 import com.spark.core.ComponentRepaintCallBack;
 import com.spark.core.SerialPortFactory;
 import com.spark.utils.StringTransformUtil;
@@ -118,6 +119,7 @@ public class MyFrame extends JFrame {
 	private Logger logger = LogManager.getLogger(getClass().getName());
 	static private MyFrame frame;
 	private volatile RunTimeContext context = new RunTimeContext();
+	private Timer timer;
 
 	/**
 	 * Launch the application.
@@ -277,11 +279,34 @@ public class MyFrame extends JFrame {
 					return;
 				}
 				// 消息，后面会使用
-				// String mess = objects[0].toString();
+				String mess = objects[0].toString();
+				int length = mess.length();
+				String infoBefore = mess.substring(10, length - 2);
+				String inforAfter = "";
+				try {
+					inforAfter = StringTransformUtil.hexStrToAsciiStr(infoBefore);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				logger.info(inforAfter);
+				String[] infos = inforAfter.split("\\\\");
 				// 目标控件
 				JPanel target = (JPanel) getComponent();
-				((TitledBorder) target.getBorder()).setTitle("SC-OEM");
-				target.repaint();
+				if (target != null && infos.length > 0) {
+					((TitledBorder) target.getBorder()).setTitle(infos[0]);
+					target.repaint();
+				}
+				// 右下角窗口
+				TableModel dataModel = table_Info.getModel();
+				// 通用的Jtable处理方式，其他的也是如此
+				int tableLength = dataModel.getRowCount();
+				// 第一行第二列内容,例子如下
+				for (int i = 0; i < tableLength; i++) {
+					dataModel.setValueAt(infos[i], i, 1);
+				}
+
+				table_Info.repaint();
+
 			}
 
 		};
@@ -467,26 +492,57 @@ public class MyFrame extends JFrame {
 				// 获取当前状态：判断是label_LaserON的mage
 				if (label_LaserON.getIcon() == icon_green) {
 					// TODO 说明当前是开启状态，发送关闭命令
-					CommandLineCallBack ccb = new CommandLineCallBack();
-					String macOrder = "";
-					ccb.setOrderMessage(StringTransformUtil.hexToBytes(macOrder));
-					ccb.setPriority(0);
-					SerialPortFactory.sendMessage(ccb);
-					// 结束
-					label_LaserON.setIcon(icon_dark);
-					label_LaserOFF.setIcon(icon_green);
+					ComponentRepaintCallBack crcb = new ComponentRepaintCallBack(label_LaserON) {
+						@Override
+						public void execute(Object... objects) {
+
+							if (objects.length == 0) {
+								return;
+							}
+							// 消息，后面会使用
+							String mess = objects[0].toString();
+							logger.info("[命令]接受：" + mess);
+							// 目标控件
+							label_LaserON.setIcon(icon_dark);
+							label_LaserOFF.setIcon(icon_green);
+
+							label_LaserON.repaint();
+							label_LaserOFF.repaint();
+						}
+					};
+					// 55 aa 01 02 01 b0 4c 0d
+					String macOrder = "55aa010201b04c0d";
+					crcb.setOrderMessage(StringTransformUtil.hexToBytes(macOrder));
+					crcb.setPriority(0);
+					SerialPortFactory.sendMessage(crcb);
+
 				} else {
 					// TODO 说明当前是关闭状态，发送开启命令
-					CommandLineCallBack ccb = new CommandLineCallBack();
-					String macOrder = "";
-					ccb.setOrderMessage(StringTransformUtil.hexToBytes(macOrder));
-					ccb.setPriority(0);
-					SerialPortFactory.sendMessage(ccb);
-					// 结束
-					label_LaserON.setIcon(icon_green);
-					label_LaserOFF.setIcon(icon_dark);
+					ComponentRepaintCallBack crcb = new ComponentRepaintCallBack(label_LaserON) {
+						@Override
+						public void execute(Object... objects) {
+
+							if (objects.length == 0) {
+								return;
+							}
+							// 消息，后面会使用
+							String mess = objects[0].toString();
+							logger.info("[命令]接受：" + mess);
+							// 结束
+							label_LaserON.setIcon(icon_green);
+							label_LaserOFF.setIcon(icon_dark);
+
+							label_LaserON.repaint();
+							label_LaserOFF.repaint();
+						}
+					};
+					String macOrder = "55aa0102010bf10d";
+					crcb.setOrderMessage(StringTransformUtil.hexToBytes(macOrder));
+					crcb.setPriority(0);
+					SerialPortFactory.sendMessage(crcb);
+
 				}
-				panel_RS232_SR.repaint();
+				// panel_RS232_SR.repaint();
 			}
 		});
 
@@ -632,11 +688,33 @@ public class MyFrame extends JFrame {
 		btnRS232_Send.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO 发送命令
+
 				// TODO 将接受到的命令展示到textField_ReplyFromDevice
-				textField_ReplyFromDevice.setText("this is a test.");
+				ComponentRepaintCallBack crcb = new ComponentRepaintCallBack(textField_ReplyFromDevice) {
+					@Override
+					public void execute(Object... objects) {
+
+						if (objects.length == 0) {
+							return;
+						}
+						// 消息，后面会使用
+						String mess = objects[0].toString();
+						// 目标控件
+						textField_ReplyFromDevice.setText(mess);
+						textField_ReplyFromDevice.repaint();
+					}
+
+				};
+				// 握手关键字
+				String text = textField_RS232_Send.getText();
+				if (!StringUtils.isEmpty(text)) {
+					crcb.setOrderMessage(StringTransformUtil.hexToBytes(text));
+					crcb.setPriority(0);
+					SerialPortFactory.sendMessage(crcb);
+				}
 			}
 		});
+
 		JLabel lblReplyFromDevice = new JLabel("Reply from device:");
 		lblReplyFromDevice.setBounds(10, 58, 120, 15);
 		panel_1.add(lblReplyFromDevice);
@@ -1150,7 +1228,7 @@ public class MyFrame extends JFrame {
 		table_OperParam.setShowGrid(false);
 		table_OperParam.setEnabled(false);
 		table_OperParam.setModel(new DefaultTableModel(
-				new Object[][] { { "Average Power", "0", "W" }, { "Max Average Power", "1.6", "W" },
+				new Object[][] { { "Average Power", "0", "%" }, { "Max Average Power", "1.6", "W" },
 						{ "Pulse Duration", "-", "ns" }, { "Pulse Energy", "0", "mJ" }, { "Peak Power", "-", "kW" },
 						{ "Set Power", "0", "%" }, { "Pulse Repetition Rate", "1.5", "kHz" }, },
 				new String[] { "", "", "" }));
@@ -1187,6 +1265,7 @@ public class MyFrame extends JFrame {
 	 * 处理gate页面内容
 	 */
 	public void handleGate() {
+		// 握手命令
 		handleItemAndMode();
 		handleGate_Control();
 		handlePRRAndSetForGate();
@@ -1207,10 +1286,12 @@ public class MyFrame extends JFrame {
 		panel_Monitor3.setLayout(new BorderLayout(0, 0));
 
 		table_Monitor = new JTable();
-		table_Monitor.setModel(new DefaultTableModel(
-				new Object[][] { { "Module Tempelete", "19.4", "\u2103" }, { "Remote Head Temp.", "-", "\u2103" },
-						{ "Main Supply Voltage ", "23.7", "V" }, { "Back Refl. Counter ", "0", "" }, },
-				new String[] { "", "", "" }));
+		table_Monitor
+				.setModel(new DefaultTableModel(
+						new Object[][] { { "Module Tempelete", "19.4", "\u2103" },
+								{ "Main Supply Voltage ", "23.7", "V" }, { "Parameter1 ", "", "" },
+								{ "Parameter2 ", "", "" }, { "Parameter3 ", "", "" }, { "Parameter4 ", "", "" } },
+						new String[] { "", "", "" }));
 		table_Monitor.getColumnModel().getColumn(0).setPreferredWidth(180);
 		table_Monitor.getColumnModel().getColumn(2).setPreferredWidth(30);
 		table_Monitor.setShowGrid(false);
@@ -1250,7 +1331,7 @@ public class MyFrame extends JFrame {
 		table_OperParam.setShowGrid(false);
 		table_OperParam.setEnabled(false);
 		table_OperParam.setModel(new DefaultTableModel(
-				new Object[][] { { "Average Power", "0", "W" }, { "Max Average Power", "1.6", "W" },
+				new Object[][] { { "Average Power", "0", "%" }, { "Max Average Power", "1.6", "W" },
 						{ "Pulse Duration", "-", "ns" }, { "Pulse Energy", "0", "mJ" }, { "Peak Power", "-", "kW" },
 						{ "Set Power", "0", "%" }, { "Pulse Repetition Rate", "1.5", "kHz" }, },
 				new String[] { "", "", "" }));
@@ -1333,7 +1414,6 @@ public class MyFrame extends JFrame {
 			@Override
 			// 退出事件
 			public void windowClosing(WindowEvent e) {
-				// TODO
 
 			}
 
@@ -1378,10 +1458,16 @@ public class MyFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				String connect_text = btnConnect.getText();
 				if ("Connect".equalsIgnoreCase(connect_text)) {
+					// 连接操作
 					connect();
+					// 处理握手
 					handleGate();
+					// 开始轮询
+					dealConnect();
+					// 重绘
 					panel_RS232_SR.repaint();
 				} else {
+					// 关闭
 					disconnect();
 					// 界面重绘
 					panel_RS232_SR.removeAll();
@@ -1537,7 +1623,37 @@ public class MyFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO 发送out power命令
+				PropertiesUtil props = PropertiesUtil.getDefaultOrderPro();
+				ComponentRepaintCallBack crcb = new ComponentRepaintCallBack(table_OperParam) {
+					@Override
+					public void execute(Object... objects) {
 
+						if (objects.length == 0) {
+							return;
+						}
+						// 消息，后面会使用
+						String mess = objects[0].toString();
+						String result = mess.substring(10, 12);
+						// TODO 对返回的数据转换成数字
+						// 目标控件
+						result = Integer.valueOf(result, 16).toString();
+						TableModel tablemodel = table_OperParam.getModel();
+						tablemodel.setValueAt(result, 0, 1);
+						table_OperParam.repaint();
+					}
+
+				};
+				// 握手关键字
+				String text = textField_outputPower.getText();
+				Integer value = Integer.valueOf(text);
+				String hex = Integer.toHexString(value);
+				if (hex.length() == 1) {
+					hex = "0" + hex;
+				}
+				String macOrder = "55aa010801" + hex + "f00d";
+				crcb.setOrderMessage(StringTransformUtil.hexToBytes(macOrder));
+				crcb.setPriority(0);
+				SerialPortFactory.sendMessage(crcb);
 			}
 		});
 	}
@@ -1556,9 +1672,61 @@ public class MyFrame extends JFrame {
 	}
 
 	/**
-	 * 处理连接内容，每500ms进行一次连接通信
+	 * 处理连接内容，每500ms进行一次连接通信,轮询monitor
 	 */
 	private void dealConnect() {
-		// TODO 暂时不需要
+		// 轮询 monitor
+		startTimerTask();
+	}
+
+	/**
+	 * 定时任务启动
+	 */
+
+	private void startTimerTask() {
+		timer = new Timer(true);
+
+		timer.schedule(new java.util.TimerTask() {
+			public void run() {
+				// moniter轮询
+				PropertiesUtil props = PropertiesUtil.getDefaultOrderPro();
+				ComponentRepaintCallBack crcb = new ComponentRepaintCallBack(table_Monitor) {
+					@Override
+					public void execute(Object... objects) {
+
+						String mess = objects[0].toString();
+						int length = mess.length();
+						String infoBefore = mess.substring(10, length - 2);
+						String inforAfter = "";
+						try {
+							inforAfter = StringTransformUtil.hexStrToAsciiStr(infoBefore);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+						logger.info(inforAfter);
+						String[] infos = inforAfter.split("\\\\");
+
+						// 右下角窗口
+						TableModel dataModel = table_Monitor.getModel();
+						// 通用的Jtable处理方式，其他的也是如此
+						int tableLength = dataModel.getRowCount();
+						// 第一行第二列内容,例子如下
+						for (int i = 0; i < tableLength; i++) {
+							dataModel.setValueAt(infos[i], i, 1);
+						}
+						table_Monitor.repaint();
+					}
+
+				};
+				// monitor
+				String macOrder = "55aa01f80101050d";
+				crcb.setOrderMessage(StringTransformUtil.hexToBytes(macOrder));
+				crcb.setPriority(0);
+				SerialPortFactory.sendMessage(crcb);
+			}
+		}, 0, 10000);
+
+		timer.cancel();
+		return;
 	}
 }
