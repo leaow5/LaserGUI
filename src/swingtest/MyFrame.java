@@ -9,11 +9,16 @@ import java.awt.Image;
 import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.List;
 import java.util.Timer;
 
+import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -27,10 +32,12 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JSlider;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.TitledBorder;
@@ -42,6 +49,7 @@ import javax.swing.table.TableModel;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.util.Strings;
 import org.jvnet.substance.SubstanceLookAndFeel;
 import org.jvnet.substance.api.SubstanceSkin;
 import org.jvnet.substance.skin.BusinessBlueSteelSkin;
@@ -60,7 +68,7 @@ public class MyFrame extends JFrame {
 	private static final long serialVersionUID = 8999460803054277945L;
 	final ImageIcon icon_connect = new ImageIcon("resource//green.png");
 	final ImageIcon icon_disconnect = new ImageIcon("resource//green_disconnect.png");
-	final ImageIcon icon_main = new ImageIcon("resource//icon.png");
+	final ImageIcon icon_main = new ImageIcon("resource//icon.jpg");
 	final ImageIcon icon_green = new ImageIcon("resource//green0.jpg");
 	final ImageIcon icon_green2 = new ImageIcon("resource//green1.jpg");
 	final ImageIcon icon_dark = new ImageIcon("resource//dark0.png");
@@ -105,15 +113,22 @@ public class MyFrame extends JFrame {
 	private JTable tableNomParam;
 	private JTable table_Monitor;
 	private JTable table_Info;
-	private JTextField textField_outputPower;
+	private JFormattedTextField  textField_outputPower;
 	private JTextField textField;
-	private JTextField textField_RS232_Send;
+	private JFormattedTextField  textField_RS232_Send;
 	private JTextField textField_ReplyFromDevice;
 	private JPanel panel_Monitor1;
 	private JButton btnResetAlarms;
 	private JButton btnOutputSend;
 	private JButton btnPulseSend;
 	private JButton btnAOFT;
+	private JButton btnAOFT2;
+	private JButton button_Laser;
+	private JButton btnRS232_Send;
+	private JRadioButton ascButton;
+	private JRadioButton otherButton;
+	private JSlider slider_outputPower;
+	private JSlider slider_PRR_EM;
 	// 端口号
 	private JComboBox<String> comboBox;
 	private Logger logger = LogManager.getLogger(getClass().getName());
@@ -228,12 +243,12 @@ public class MyFrame extends JFrame {
 		this.panel_Connect.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Connect",
 				TitledBorder.LEADING, TitledBorder.TOP, null, SystemColor.desktop));
 		this.panel_Connect.setToolTipText("Connect");
-		this.panel_Connect.setBounds(10, 10, 280, 74);
+		this.panel_Connect.setBounds(10, 10, 280, 60);
 		panel_RS232_SR.add(panel_Connect);
 		panel_Connect.setLayout(null);
 
 		this.btnConnect = new JButton("Connect");
-		this.btnConnect.setBounds(69, 23, 91, 29);
+		this.btnConnect.setBounds(69, 18, 91, 29);
 		panel_Connect.add(btnConnect);
 
 		// 添加端口
@@ -242,11 +257,11 @@ public class MyFrame extends JFrame {
 		for (String name : portNames) {
 			comboBox.addItem(name);
 		}
-		comboBox.setBounds(170, 23, 91, 29);
+		comboBox.setBounds(170, 18, 91, 29);
 		panel_Connect.add(comboBox);
 
 		lab_connect = new JLabel(icon_disconnect);
-		lab_connect.setBounds(29, 22, 30, 30);
+		lab_connect.setBounds(29, 16, 30, 30);
 		panel_Connect.add(lab_connect);
 	}
 
@@ -266,7 +281,7 @@ public class MyFrame extends JFrame {
 		JPanel panel_ItemType = new MyPanel();
 		panel_ItemType.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Item NO.",
 				TitledBorder.LEADING, TitledBorder.TOP, null, SystemColor.desktop));
-		panel_ItemType.setBounds(300, 10, 91, 74);
+		panel_ItemType.setBounds(300, 10, 91, 60);
 		panel_RS232_SR.add(panel_ItemType);
 
 		// 定制发送消息：应该是握手协议
@@ -318,7 +333,7 @@ public class MyFrame extends JFrame {
 		// 结束
 
 		btnMode = new JButton("MODE");
-		btnMode.setBounds(401, 19, 91, 64);
+		btnMode.setBounds(401, 19, 91, 50);
 		panel_RS232_SR.add(btnMode);
 
 		bindModeEvent();
@@ -483,12 +498,26 @@ public class MyFrame extends JFrame {
 		final JLabel label_LaserOFF = new JLabel(icon_green);
 
 		// 激光开启&关闭按钮
-		JButton button_Laser = new JButton("Laser ON");
+		button_Laser = new JButton("Laser ON");
 		button_Laser.setBounds(80, 22, 120, 42);
 		panel_RS232.add(button_Laser);
 		// 绑定消息
 		button_Laser.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				//禁用按钮
+				button_Laser.setEnabled(false);
+				//延时2秒后按钮可用
+				SwingUtilities.invokeLater(new Runnable() {  
+					@Override
+					public void run() {
+						try {
+							Thread.sleep(2000);
+							button_Laser.setEnabled(true);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+				});
 				// 获取当前状态：判断是label_LaserON的mage
 				if (label_LaserON.getIcon() == icon_green) {
 					// TODO 说明当前是开启状态，发送关闭命令
@@ -596,7 +625,7 @@ public class MyFrame extends JFrame {
 		panel_outputPower.setBounds(10, 155, 482, 65);
 		panel_RS232_SR.add(panel_outputPower);
 
-		JSlider slider_outputPower = new JSlider(0, 100, 0);
+		slider_outputPower = new JSlider(0, 100, 0);
 		slider_outputPower.setSnapToTicks(true);
 		slider_outputPower.setPaintTicks(true);
 		slider_outputPower.setPaintLabels(true);
@@ -607,11 +636,35 @@ public class MyFrame extends JFrame {
 		slider_outputPower.setBounds(10, 16, 300, 40);
 		panel_outputPower.add(slider_outputPower);
 
-		textField_outputPower = new JTextField("0");
+		textField_outputPower = new JFormattedTextField(NumberFormat.getIntegerInstance());
+		textField_outputPower.setText("0");
 		textField_outputPower.setHorizontalAlignment(SwingConstants.RIGHT);
-		// textField_outputPower.setEditable(true);
 		textField_outputPower.setColumns(10);
 		textField_outputPower.setBounds(330, 28, 55, 21);
+		textField_outputPower.addKeyListener(new KeyListener() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				// TODO Auto-generated method stub
+			}
+			@Override
+			public void keyReleased(KeyEvent e) {
+				String text = textField_outputPower.getText().replaceAll("[^0-9]", "");
+				if (Strings.isBlank(text)) {
+					text = "0";
+				}
+				int val = Integer.valueOf(text);
+				if (val > 100) {
+					val = 100;
+				} 
+				textField_outputPower.setText(val+"");
+				slider_outputPower.setValue(val);
+			}
+			
+			@Override
+			public void keyPressed(KeyEvent e) {
+				
+			}
+		});
 		panel_outputPower.add(textField_outputPower);
 
 		JLabel label = new JLabel((Icon) null);
@@ -634,7 +687,7 @@ public class MyFrame extends JFrame {
 		panel_PRR_EM.setBounds(10, 220, 482, 65);
 		panel_RS232_SR.add(panel_PRR_EM);
 
-		JSlider slider_PRR_EM = new JSlider(0, 5000, 0);
+		slider_PRR_EM = new JSlider(0, 5000, 0);
 		slider_PRR_EM.setBackground(new Color(240, 255, 255));
 		slider_PRR_EM.setSnapToTicks(true);
 		slider_PRR_EM.setPaintTicks(true);
@@ -645,12 +698,40 @@ public class MyFrame extends JFrame {
 		slider_PRR_EM.setBounds(10, 16, 300, 40);
 		panel_PRR_EM.add(slider_PRR_EM);
 
-		textField = new JTextField("0");
+		textField = new JFormattedTextField(NumberFormat.getIntegerInstance());
+		textField.setText("0");
 		textField.setHorizontalAlignment(SwingConstants.RIGHT);
-		// textField.setEditable(false);
 		textField.setColumns(10);
 		textField.setBounds(330, 28, 55, 21);
 		panel_PRR_EM.add(textField);
+		
+		textField.addKeyListener(new KeyListener() {
+			
+			@Override
+			public void keyTyped(KeyEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void keyReleased(KeyEvent e) {
+				String text = textField.getText().replaceAll("[^0-9]", "");
+				if (Strings.isBlank(text)) {
+					text = "0";
+				}
+				int val = Integer.valueOf(text);
+				if (val > 5000) {
+					val = 5000;
+				}
+				textField.setText(val+"");
+				slider_PRR_EM.setValue(val);
+			}
+			
+			@Override
+			public void keyPressed(KeyEvent e) {
+				
+			}
+		});
 
 		JLabel lblKhz = new JLabel((Icon) null);
 		lblKhz.setText("kHz");
@@ -674,20 +755,49 @@ public class MyFrame extends JFrame {
 		JLabel lblNewLabel_2 = new JLabel("Command:");
 		lblNewLabel_2.setBounds(10, 15, 70, 15);
 		panel_1.add(lblNewLabel_2);
-
-		textField_RS232_Send = new JTextField();
+		
+		//TODO radio ascii 
+		ascButton = new JRadioButton("ascii");
+		ascButton.setBounds(85, 15, 60, 15);
+		panel_1.add(ascButton);
+		
+		otherButton = new JRadioButton("16进制");
+		otherButton.setBounds(150, 15, 70, 15);
+		panel_1.add(otherButton);
+		
+		ButtonGroup group = new ButtonGroup();
+		group.add(ascButton);
+		group.add(otherButton);
+		
+		ascButton.setSelected(true);
+		
+		textField_RS232_Send = new JFormattedTextField();
 		textField_RS232_Send.setBounds(10, 35, 350, 21);
 		panel_1.add(textField_RS232_Send);
 		textField_RS232_Send.setColumns(10);
 
 		// 命令行发送按钮
-		final JButton btnRS232_Send = new JButton("Send");
+		btnRS232_Send = new JButton("Send");
 		btnRS232_Send.setBounds(370, 34, 93, 23);
 		panel_1.add(btnRS232_Send);
 		// 命令绑定事件
 		btnRS232_Send.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				//禁用按钮
+				btnRS232_Send.setEnabled(false);
+				//延时2秒后按钮可用
+				SwingUtilities.invokeLater(new Runnable() {  
+					@Override
+					public void run() {
+						try {
+							Thread.sleep(2000);
+							btnRS232_Send.setEnabled(true);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+				});
 
 				// TODO 将接受到的命令展示到textField_ReplyFromDevice
 				ComponentRepaintCallBack crcb = new ComponentRepaintCallBack(textField_ReplyFromDevice) {
@@ -780,11 +890,16 @@ public class MyFrame extends JFrame {
 		// panel_PulseMode.add(btnMonopulse);
 		// btnMonopulse.setActionCommand("Save to laser\r\nEEPROM");
 
-		btnAOFT = new JButton("AOFT");
-		btnAOFT.setBounds(190, 14, 153, 42);
+		btnAOFT = new JButton("AOFT1");
+		btnAOFT.setBounds(50, 18, 153, 42);
 		panel_PulseMode.add(btnAOFT);
+		
+		btnAOFT2 = new JButton("AOFT2");
+		btnAOFT2.setBounds(240, 18, 153, 42);
+		panel_PulseMode.add(btnAOFT2);
 
-		bindResetAlarmEvent();
+//		bindResetAlarmEvent();
+		bindAoftEvent();
 
 		JPanel panel_Burst = new MyPanel();
 		panel_Burst.setLayout(null);
@@ -873,7 +988,7 @@ public class MyFrame extends JFrame {
 		btnAOFT.setBounds(187, 22, 153, 42);
 		panel_PulseMode.add(btnAOFT);
 
-		bindResetAlarmEvent();
+//		bindResetAlarmEvent();
 
 		JPanel panel_PulseDuration = new MyPanel();
 		panel_PulseDuration.setLayout(null);
@@ -1169,6 +1284,7 @@ public class MyFrame extends JFrame {
 		btnResetAlarms.setBounds(38, 222, 167, 48);
 		panel_Monitor1.add(btnResetAlarms);
 		btnResetAlarms.setEnabled(false);
+		btnResetAlarms.setVisible(false);
 	}
 
 	/**
@@ -1193,7 +1309,7 @@ public class MyFrame extends JFrame {
 		table_Monitor.getColumnModel().getColumn(2).setPreferredWidth(30);
 		table_Monitor.setShowGrid(false);
 		table_Monitor.setEnabled(false);
-		table_Monitor.setBackground(UIManager.getColor("Panel.background"));
+//		table_Monitor.setBackground(UIManager.getColor("Panel.background"));
 		panel_Monitor3.add(table_Monitor);
 
 		JPanel panel_info = new MyPanel();
@@ -1201,10 +1317,10 @@ public class MyFrame extends JFrame {
 				new TitledBorder(null, "Info", TitledBorder.LEADING, TitledBorder.TOP, null, SystemColor.desktop));
 		panel_info.setBounds(760, 333, 248, 180);
 		panel_RS232_SR.add(panel_info);
-		panel_info.setLayout(new BorderLayout(0, 0));
+		panel_info.setLayout(new BorderLayout(1, 1));
 
 		table_Info = new JTable();
-		table_Info.setEnabled(false);
+		table_Info.setEnabled(true);
 		table_Info.setShowGrid(false);
 		table_Info
 				.setModel(
@@ -1213,7 +1329,7 @@ public class MyFrame extends JFrame {
 										{ "Serial Number ", "XXXX" }, { "Firmware", "XXXX" }, },
 								new String[] { "", "" }));
 		table_Info.getColumnModel().getColumn(0).setPreferredWidth(141);
-		table_Info.setBackground(UIManager.getColor("Panel.background"));
+//		table_Info.setBackground(UIManager.getColor("Panel.background"));
 		panel_info.add(table_Info);
 
 		JPanel panel_OParam = new MyPanel();
@@ -1456,6 +1572,20 @@ public class MyFrame extends JFrame {
 		// 连接事件
 		btnConnect.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				//禁用按钮
+				btnConnect.setEnabled(false);
+				//延时2秒后按钮可用
+				SwingUtilities.invokeLater(new Runnable() {  
+					@Override
+					public void run() {
+						try {
+							Thread.sleep(2000);
+							btnConnect.setEnabled(true);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+				});
 				String connect_text = btnConnect.getText();
 				if ("Connect".equalsIgnoreCase(connect_text)) {
 					// 连接操作
@@ -1501,7 +1631,7 @@ public class MyFrame extends JFrame {
 		btnConnect.setText("Connect");
 		panel_Connect.remove(lab_connect);
 		lab_connect = new JLabel(icon_disconnect);
-		lab_connect.setBounds(29, 22, 30, 30);
+		lab_connect.setBounds(29, 16, 30, 30);
 		panel_Connect.add(lab_connect);
 		lab_connect.repaint();
 	}
@@ -1536,7 +1666,7 @@ public class MyFrame extends JFrame {
 		btnConnect.setText("DisConnect");
 		panel_Connect.remove(lab_connect);
 		lab_connect = new JLabel(icon_connect);
-		lab_connect.setBounds(29, 22, 30, 30);
+		lab_connect.setBounds(29, 16, 30, 30);
 		panel_Connect.add(lab_connect);
 		lab_connect.repaint();
 	}
@@ -1571,10 +1701,47 @@ public class MyFrame extends JFrame {
 		handleGate();
 		disconnect();
 	}
+	/**
+	 * 绑定aoft事件，调用另外的exe程序
+	 */
+	private void bindAoftEvent() {
+		//AOFT 
+		btnAOFT.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				//第一个参数为程序名，第二个参数为程序打开的内容路径
+				String[] cmd = {"Notepad.exe","D:\\1.txt"};
+				try {
+					Runtime.getRuntime().exec(cmd);
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+			}
+		});
+		
+		btnAOFT2.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String[] cmd = {"Notepad.exe","D:\\1.txt"};
+				try {
+					Runtime.getRuntime().exec(cmd);
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+			}
+		});
+	}
 
 	/**
-	 * reset alarm 事件
+	 * reset alarm 事件 
+	 * 暂取消，调整为调养另外的exe程序
 	 */
+	@Deprecated
 	private void bindResetAlarmEvent() {
 		btnAOFT.addActionListener(new ActionListener() {
 			@Override
@@ -1622,6 +1789,20 @@ public class MyFrame extends JFrame {
 		btnOutputSend.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				//禁用按钮
+				btnOutputSend.setEnabled(false);
+				//延时2秒后按钮可用
+				SwingUtilities.invokeLater(new Runnable() {  
+					@Override
+					public void run() {
+						try {
+							Thread.sleep(2000);
+							btnOutputSend.setEnabled(true);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+				});
 				// TODO 发送out power命令
 				PropertiesUtil props = PropertiesUtil.getDefaultOrderPro();
 				ComponentRepaintCallBack crcb = new ComponentRepaintCallBack(table_OperParam) {
@@ -1666,6 +1847,20 @@ public class MyFrame extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				//禁用按钮
+				btnPulseSend.setEnabled(false);
+				//延时2秒后按钮可用
+				SwingUtilities.invokeLater(new Runnable() {  
+					@Override
+					public void run() {
+						try {
+							Thread.sleep(2000);
+							btnPulseSend.setEnabled(true);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+				});
 				// TODO 发送PLUS 命令
 			}
 		});
