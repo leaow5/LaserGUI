@@ -113,9 +113,9 @@ public class MyFrame extends JFrame {
 	private JTable tableNomParam;
 	private JTable table_Monitor;
 	private JTable table_Info;
-	private JFormattedTextField  textField_outputPower;
+	private JFormattedTextField textField_outputPower;
 	private JTextField textField;
-	private JFormattedTextField  textField_RS232_Send;
+	private JFormattedTextField textField_RS232_Send;
 	private JTextField textField_ReplyFromDevice;
 	private JPanel panel_Monitor1;
 	private JButton btnResetAlarms;
@@ -303,7 +303,7 @@ public class MyFrame extends JFrame {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				logger.info(inforAfter);
+				logger.info("界面[接受]:" + inforAfter);
 				String[] infos = inforAfter.split("\\\\");
 				// 目标控件
 				JPanel target = (JPanel) getComponent();
@@ -319,14 +319,16 @@ public class MyFrame extends JFrame {
 				for (int i = 0; i < tableLength; i++) {
 					dataModel.setValueAt(infos[i], i, 1);
 				}
-
+				logger.info("界面[重绘]:table_Info" + inforAfter);
 				table_Info.repaint();
-
+				logger.info("界面[重绘]:frame" + inforAfter);
+				frame.repaint();
 			}
 
 		};
 		// 握手关键字
 		String macOrder = props.getProperty("HANDSHAKE_ORDER");
+		logger.info("界面[发送]:" + macOrder);
 		crcb.setOrderMessage(StringTransformUtil.hexToBytes(macOrder));
 		crcb.setPriority(0);
 		SerialPortFactory.sendMessage(crcb);
@@ -504,10 +506,10 @@ public class MyFrame extends JFrame {
 		// 绑定消息
 		button_Laser.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				//禁用按钮
+				// 禁用按钮
 				button_Laser.setEnabled(false);
-				//延时2秒后按钮可用
-				SwingUtilities.invokeLater(new Runnable() {  
+				// 延时2秒后按钮可用
+				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
 						try {
@@ -646,6 +648,7 @@ public class MyFrame extends JFrame {
 			public void keyTyped(KeyEvent e) {
 				// TODO Auto-generated method stub
 			}
+
 			@Override
 			public void keyReleased(KeyEvent e) {
 				String text = textField_outputPower.getText().replaceAll("[^0-9]", "");
@@ -655,14 +658,14 @@ public class MyFrame extends JFrame {
 				int val = Integer.valueOf(text);
 				if (val > 100) {
 					val = 100;
-				} 
-				textField_outputPower.setText(val+"");
+				}
+				textField_outputPower.setText(val + "");
 				slider_outputPower.setValue(val);
 			}
-			
+
 			@Override
 			public void keyPressed(KeyEvent e) {
-				
+
 			}
 		});
 		panel_outputPower.add(textField_outputPower);
@@ -704,15 +707,15 @@ public class MyFrame extends JFrame {
 		textField.setColumns(10);
 		textField.setBounds(330, 28, 55, 21);
 		panel_PRR_EM.add(textField);
-		
+
 		textField.addKeyListener(new KeyListener() {
-			
+
 			@Override
 			public void keyTyped(KeyEvent e) {
 				// TODO Auto-generated method stub
-				
+
 			}
-			
+
 			@Override
 			public void keyReleased(KeyEvent e) {
 				String text = textField.getText().replaceAll("[^0-9]", "");
@@ -723,13 +726,13 @@ public class MyFrame extends JFrame {
 				if (val > 5000) {
 					val = 5000;
 				}
-				textField.setText(val+"");
+				textField.setText(val + "");
 				slider_PRR_EM.setValue(val);
 			}
-			
+
 			@Override
 			public void keyPressed(KeyEvent e) {
-				
+
 			}
 		});
 
@@ -755,22 +758,22 @@ public class MyFrame extends JFrame {
 		JLabel lblNewLabel_2 = new JLabel("Command:");
 		lblNewLabel_2.setBounds(10, 15, 70, 15);
 		panel_1.add(lblNewLabel_2);
-		
-		//TODO radio ascii 
+
+		// TODO radio ascii
 		ascButton = new JRadioButton("ascii");
 		ascButton.setBounds(85, 15, 60, 15);
 		panel_1.add(ascButton);
-		
+
 		otherButton = new JRadioButton("16进制");
 		otherButton.setBounds(150, 15, 70, 15);
 		panel_1.add(otherButton);
-		
+
 		ButtonGroup group = new ButtonGroup();
 		group.add(ascButton);
 		group.add(otherButton);
-		
+
 		ascButton.setSelected(true);
-		
+
 		textField_RS232_Send = new JFormattedTextField();
 		textField_RS232_Send.setBounds(10, 35, 350, 21);
 		panel_1.add(textField_RS232_Send);
@@ -784,10 +787,10 @@ public class MyFrame extends JFrame {
 		btnRS232_Send.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				//禁用按钮
+				// 禁用按钮
 				btnRS232_Send.setEnabled(false);
-				//延时2秒后按钮可用
-				SwingUtilities.invokeLater(new Runnable() {  
+				// 延时2秒后按钮可用
+				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
 						try {
@@ -893,12 +896,12 @@ public class MyFrame extends JFrame {
 		btnAOFT = new JButton("AOFT1");
 		btnAOFT.setBounds(50, 18, 153, 42);
 		panel_PulseMode.add(btnAOFT);
-		
+
 		btnAOFT2 = new JButton("AOFT2");
 		btnAOFT2.setBounds(240, 18, 153, 42);
 		panel_PulseMode.add(btnAOFT2);
 
-//		bindResetAlarmEvent();
+		// bindResetAlarmEvent();
 		bindAoftEvent();
 
 		JPanel panel_Burst = new MyPanel();
@@ -988,7 +991,7 @@ public class MyFrame extends JFrame {
 		btnAOFT.setBounds(187, 22, 153, 42);
 		panel_PulseMode.add(btnAOFT);
 
-//		bindResetAlarmEvent();
+		// bindResetAlarmEvent();
 
 		JPanel panel_PulseDuration = new MyPanel();
 		panel_PulseDuration.setLayout(null);
@@ -1309,7 +1312,7 @@ public class MyFrame extends JFrame {
 		table_Monitor.getColumnModel().getColumn(2).setPreferredWidth(30);
 		table_Monitor.setShowGrid(false);
 		table_Monitor.setEnabled(false);
-//		table_Monitor.setBackground(UIManager.getColor("Panel.background"));
+		// table_Monitor.setBackground(UIManager.getColor("Panel.background"));
 		panel_Monitor3.add(table_Monitor);
 
 		JPanel panel_info = new MyPanel();
@@ -1329,7 +1332,7 @@ public class MyFrame extends JFrame {
 										{ "Serial Number ", "XXXX" }, { "Firmware", "XXXX" }, },
 								new String[] { "", "" }));
 		table_Info.getColumnModel().getColumn(0).setPreferredWidth(141);
-//		table_Info.setBackground(UIManager.getColor("Panel.background"));
+		// table_Info.setBackground(UIManager.getColor("Panel.background"));
 		panel_info.add(table_Info);
 
 		JPanel panel_OParam = new MyPanel();
@@ -1572,10 +1575,10 @@ public class MyFrame extends JFrame {
 		// 连接事件
 		btnConnect.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				//禁用按钮
+				// 禁用按钮
 				btnConnect.setEnabled(false);
-				//延时2秒后按钮可用
-				SwingUtilities.invokeLater(new Runnable() {  
+				// 延时2秒后按钮可用
+				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
 						try {
@@ -1701,45 +1704,45 @@ public class MyFrame extends JFrame {
 		handleGate();
 		disconnect();
 	}
+
 	/**
 	 * 绑定aoft事件，调用另外的exe程序
 	 */
 	private void bindAoftEvent() {
-		//AOFT 
+		// AOFT
 		btnAOFT.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				//第一个参数为程序名，第二个参数为程序打开的内容路径
-				String[] cmd = {"Notepad.exe","D:\\1.txt"};
+				// 第一个参数为程序名，第二个参数为程序打开的内容路径
+				String[] cmd = { "Notepad.exe", "D:\\1.txt" };
 				try {
 					Runtime.getRuntime().exec(cmd);
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				
+
 			}
 		});
-		
+
 		btnAOFT2.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String[] cmd = {"Notepad.exe","D:\\1.txt"};
+				String[] cmd = { "Notepad.exe", "D:\\1.txt" };
 				try {
 					Runtime.getRuntime().exec(cmd);
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				
+
 			}
 		});
 	}
 
 	/**
-	 * reset alarm 事件 
-	 * 暂取消，调整为调养另外的exe程序
+	 * reset alarm 事件 暂取消，调整为调养另外的exe程序
 	 */
 	@Deprecated
 	private void bindResetAlarmEvent() {
@@ -1789,10 +1792,10 @@ public class MyFrame extends JFrame {
 		btnOutputSend.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				//禁用按钮
+				// 禁用按钮
 				btnOutputSend.setEnabled(false);
-				//延时2秒后按钮可用
-				SwingUtilities.invokeLater(new Runnable() {  
+				// 延时2秒后按钮可用
+				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
 						try {
@@ -1847,10 +1850,10 @@ public class MyFrame extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				//禁用按钮
+				// 禁用按钮
 				btnPulseSend.setEnabled(false);
-				//延时2秒后按钮可用
-				SwingUtilities.invokeLater(new Runnable() {  
+				// 延时2秒后按钮可用
+				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
 						try {
