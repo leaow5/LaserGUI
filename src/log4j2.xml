@@ -23,6 +23,11 @@
 
 			<DefaultRolloverStrategy max="20" />
 		</RollingFile>
+		<Console name="Console" target="SYSTEM_OUT">
+			<PatternLayout pattern="%d{YYYY-MM-dd HH:mm:ss} [%t] %-5p %c{1}:%L - %msg%n" />
+			<!-- <PatternLayout pattern="%d{HH:mm:ss} [%t] %-5level %logger{36} - %msg%n" /> -->
+			<!-- <PatternLayout pattern="%-d [%t] %-5p %c{1}:%L - %m%n" /> -->
+		</Console>
 	</appenders>
 	<loggers>
 		<!-- root是默认的，如果需要其他的，要单独配置logger, additivity则使指是否输出到顶层包定义的Appender中-->
@@ -32,6 +37,7 @@
         
 		<root level="debug">
 			<appender-ref ref="RollingFile" />
+			<appender-ref ref="Console"/>
 		</root>
 	</loggers>
 </configuration>

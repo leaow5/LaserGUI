@@ -319,9 +319,9 @@ public class MyFrame extends JFrame {
 				for (int i = 0; i < tableLength; i++) {
 					dataModel.setValueAt(infos[i], i, 1);
 				}
-				logger.info("界面[重绘]:table_Info" + inforAfter);
+				logger.info("界面[重绘]:table_Info:" + inforAfter);
 				table_Info.repaint();
-				logger.info("界面[重绘]:frame" + inforAfter);
+				logger.info("界面[重绘]:frame:" + inforAfter);
 				frame.repaint();
 			}
 
@@ -331,7 +331,13 @@ public class MyFrame extends JFrame {
 		logger.info("界面[发送]:" + macOrder);
 		crcb.setOrderMessage(StringTransformUtil.hexToBytes(macOrder));
 		crcb.setPriority(0);
-		SerialPortFactory.sendMessage(crcb);
+		try {
+			SerialPortFactory.sendMessage(crcb);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			logger.error(e);
+			e.printStackTrace();
+		}
 		// 结束
 
 		btnMode = new JButton("MODE");
@@ -545,7 +551,13 @@ public class MyFrame extends JFrame {
 					String macOrder = "55aa010201b04c0d";
 					crcb.setOrderMessage(StringTransformUtil.hexToBytes(macOrder));
 					crcb.setPriority(0);
-					SerialPortFactory.sendMessage(crcb);
+					try {
+						SerialPortFactory.sendMessage(crcb);
+					} catch (Exception e1) {
+						// TODO Auto-generated catch block
+						logger.error(e1);
+						e1.printStackTrace();
+					}
 
 				} else {
 					// TODO 说明当前是关闭状态，发送开启命令
@@ -570,7 +582,13 @@ public class MyFrame extends JFrame {
 					String macOrder = "55aa0102010bf10d";
 					crcb.setOrderMessage(StringTransformUtil.hexToBytes(macOrder));
 					crcb.setPriority(0);
-					SerialPortFactory.sendMessage(crcb);
+					try {
+						SerialPortFactory.sendMessage(crcb);
+					} catch (Exception e1) {
+						// TODO Auto-generated catch block
+						logger.error(e1);
+						e1.printStackTrace();
+					}
 
 				}
 				// panel_RS232_SR.repaint();
@@ -823,7 +841,13 @@ public class MyFrame extends JFrame {
 				if (!StringUtils.isEmpty(text)) {
 					crcb.setOrderMessage(StringTransformUtil.hexToBytes(text));
 					crcb.setPriority(0);
-					SerialPortFactory.sendMessage(crcb);
+					try {
+						SerialPortFactory.sendMessage(crcb);
+					} catch (Exception e1) {
+						// TODO Auto-generated catch block
+						logger.error(e1);
+						e1.printStackTrace();
+					}
 				}
 			}
 		});
@@ -1577,6 +1601,44 @@ public class MyFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				// 禁用按钮
 				btnConnect.setEnabled(false);
+
+				String connect_text = btnConnect.getText();
+				if ("Connect".equalsIgnoreCase(connect_text)) {
+
+					SwingUtilities.invokeLater(new Runnable() {
+
+						@Override
+						public void run() {
+							// 连接操作
+							connect();
+							// 处理握手
+							handleGate();
+							// 开始轮询
+							dealConnect();
+							// 重绘
+							panel_RS232_SR.repaint();
+						}
+
+					});
+
+				} else {
+
+					SwingUtilities.invokeLater(new Runnable() {
+
+						@Override
+						public void run() {
+							// 关闭
+							disconnect();
+							// 界面重绘
+							panel_RS232_SR.removeAll();
+							panel_RS232_SR.add(panel_Connect);
+							panel_RS232_SR.repaint();
+						}
+
+					});
+
+				}
+
 				// 延时2秒后按钮可用
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
@@ -1589,24 +1651,6 @@ public class MyFrame extends JFrame {
 						}
 					}
 				});
-				String connect_text = btnConnect.getText();
-				if ("Connect".equalsIgnoreCase(connect_text)) {
-					// 连接操作
-					connect();
-					// 处理握手
-					handleGate();
-					// 开始轮询
-					dealConnect();
-					// 重绘
-					panel_RS232_SR.repaint();
-				} else {
-					// 关闭
-					disconnect();
-					// 界面重绘
-					panel_RS232_SR.removeAll();
-					panel_RS232_SR.add(panel_Connect);
-					panel_RS232_SR.repaint();
-				}
 			}
 		});
 	}
@@ -1625,7 +1669,9 @@ public class MyFrame extends JFrame {
 	 */
 	private void disconnect() {
 		// 关闭连接
+		logger.info("[info]:触发disconnect事件");
 		String portName = getSelectedSerialPort();
+		logger.info("[info]:关闭当前连接");
 		SerialPortFactory.disConnect(portName);
 		// 优化点，连接后，选择框可选择
 		comboBox.setEnabled(true);
@@ -1657,6 +1703,7 @@ public class MyFrame extends JFrame {
 				logger.info("[INFO:" + portName + "端口已连接]");
 			} catch (Exception ex) {
 				logger.error("打开连接时发生异常", ex);
+				logger.error(ex);
 				frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
 				return;
 			}
@@ -1837,7 +1884,13 @@ public class MyFrame extends JFrame {
 				String macOrder = "55aa010801" + hex + "f00d";
 				crcb.setOrderMessage(StringTransformUtil.hexToBytes(macOrder));
 				crcb.setPriority(0);
-				SerialPortFactory.sendMessage(crcb);
+				try {
+					SerialPortFactory.sendMessage(crcb);
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					logger.error(e1);
+					e1.printStackTrace();
+				}
 			}
 		});
 	}
@@ -1920,7 +1973,13 @@ public class MyFrame extends JFrame {
 				String macOrder = "55aa01f80101050d";
 				crcb.setOrderMessage(StringTransformUtil.hexToBytes(macOrder));
 				crcb.setPriority(0);
-				SerialPortFactory.sendMessage(crcb);
+				try {
+					SerialPortFactory.sendMessage(crcb);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					logger.error(e);
+					e.printStackTrace();
+				}
 			}
 		}, 0, 10000);
 
