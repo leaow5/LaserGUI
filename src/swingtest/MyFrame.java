@@ -306,19 +306,26 @@ public class MyFrame extends JFrame {
 				logger.info("界面[接受]:" + inforAfter);
 				String[] infos = inforAfter.split("\\\\");
 				// 目标控件
+				logger.info("界面[接受]:堵塞判断A");
 				JPanel target = (JPanel) getComponent();
 				if (target != null && infos.length > 0) {
+					logger.info("界面[接受]:堵塞判断B");
 					((TitledBorder) target.getBorder()).setTitle(infos[0]);
+					logger.info("界面[接受]:堵塞判断C");
 					target.repaint();
 				}
 				// 右下角窗口
+				logger.info("界面[接受]:堵塞判断D");
 				TableModel dataModel = table_Info.getModel();
 				// 通用的Jtable处理方式，其他的也是如此
+				logger.info("界面[接受]:堵塞判断E");
 				int tableLength = dataModel.getRowCount();
 				// 第一行第二列内容,例子如下
+				logger.info("界面[接受]:堵塞判断F");
 				for (int i = 0; i < tableLength; i++) {
 					dataModel.setValueAt(infos[i], i, 1);
 				}
+				logger.info("界面[接受]:堵塞判断G");
 				logger.info("界面[重绘]:table_Info:" + inforAfter);
 				table_Info.repaint();
 				logger.info("界面[重绘]:frame:" + inforAfter);
@@ -1673,6 +1680,7 @@ public class MyFrame extends JFrame {
 		String portName = getSelectedSerialPort();
 		logger.info("[info]:关闭当前连接");
 		SerialPortFactory.disConnect(portName);
+		timer.cancel();
 		// 优化点，连接后，选择框可选择
 		comboBox.setEnabled(true);
 
@@ -1923,7 +1931,7 @@ public class MyFrame extends JFrame {
 	}
 
 	/**
-	 * 处理连接内容，每500ms进行一次连接通信,轮询monitor
+	 * 处理连接内容，每5000ms进行一次连接通信,轮询monitor
 	 */
 	private void dealConnect() {
 		// 轮询 monitor
@@ -1933,14 +1941,15 @@ public class MyFrame extends JFrame {
 	/**
 	 * 定时任务启动
 	 */
-
+  
 	private void startTimerTask() {
 		timer = new Timer(true);
-
+		final PropertiesUtil props = PropertiesUtil.getDefaultOrderPro();
+		int interval =  Integer.valueOf(props.getProperty("INTERVAL_TIME"));
 		timer.schedule(new java.util.TimerTask() {
 			public void run() {
 				// moniter轮询
-				PropertiesUtil props = PropertiesUtil.getDefaultOrderPro();
+//				PropertiesUtil props = PropertiesUtil.getDefaultOrderPro();
 				ComponentRepaintCallBack crcb = new ComponentRepaintCallBack(table_Monitor) {
 					@Override
 					public void execute(Object... objects) {
@@ -1981,9 +1990,9 @@ public class MyFrame extends JFrame {
 					e.printStackTrace();
 				}
 			}
-		}, 0, 10000);
+		}, 0, interval);
 
-		timer.cancel();
+//		timer.cancel();
 		return;
 	}
 }
