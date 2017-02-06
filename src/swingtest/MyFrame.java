@@ -79,6 +79,7 @@ public class MyFrame extends JFrame {
 	final ImageIcon icon_red2 = new ImageIcon("resource//red_dark.png");
 	public JPanel panel_RS232_SR; // panel Main
 	private JTextField textField_simmer;
+	protected JPanel panel_ItemType;
 	protected JLabel lab_connect;
 	protected JPanel panel_Connect;
 	protected JButton btnConnect;
@@ -281,15 +282,9 @@ public class MyFrame extends JFrame {
 	}
 
 	/**
-	 * 处理itemNo.和Mode内容
+	 * 握手操作.
 	 */
-	private void handleItemAndMode() {
-		JPanel panel_ItemType = new MyPanel();
-		panel_ItemType.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Item NO.",
-				TitledBorder.LEADING, TitledBorder.TOP, null, SystemColor.desktop));
-		panel_ItemType.setBounds(300, 10, 91, 60);
-		panel_RS232_SR.add(panel_ItemType);
-
+	private void handshake() {
 		// 定制发送消息：应该是握手协议
 		PropertiesUtil props = PropertiesUtil.getDefaultOrderPro();
 		ComponentRepaintCallBack crcb = new ComponentRepaintCallBack(panel_ItemType) {
@@ -356,6 +351,17 @@ public class MyFrame extends JFrame {
 			e.printStackTrace();
 		}
 		// 结束
+	}
+
+	/**
+	 * 处理itemNo.和Mode内容
+	 */
+	private void handleItemAndMode() {
+		panel_ItemType = new MyPanel();
+		panel_ItemType.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Item NO.",
+				TitledBorder.LEADING, TitledBorder.TOP, null, SystemColor.desktop));
+		panel_ItemType.setBounds(300, 10, 91, 60);
+		panel_RS232_SR.add(panel_ItemType);
 
 		btnMode = new JButton("MODE");
 		btnMode.setBounds(401, 19, 91, 50);
@@ -557,11 +563,17 @@ public class MyFrame extends JFrame {
 							String mess = objects[0].toString();
 							logger.info("[命令]接受：" + mess);
 							// 目标控件
-							label_LaserON.setIcon(icon_dark);
-							label_LaserOFF.setIcon(icon_green);
+							SwingUtilities.invokeLater(new Runnable() {
+								@Override
+								public void run() {
+									label_LaserON.setIcon(icon_dark);
+									label_LaserOFF.setIcon(icon_green);
 
-							label_LaserON.repaint();
-							label_LaserOFF.repaint();
+									label_LaserON.repaint();
+									label_LaserOFF.repaint();
+								}
+							});
+
 						}
 					};
 					// 55 aa 01 02 01 b0 4c 0d
@@ -589,11 +601,16 @@ public class MyFrame extends JFrame {
 							String mess = objects[0].toString();
 							logger.info("[命令]接受：" + mess);
 							// 结束
-							label_LaserON.setIcon(icon_green);
-							label_LaserOFF.setIcon(icon_dark);
+							SwingUtilities.invokeLater(new Runnable() {
+								@Override
+								public void run() {
+									label_LaserON.setIcon(icon_green);
+									label_LaserOFF.setIcon(icon_dark);
 
-							label_LaserON.repaint();
-							label_LaserOFF.repaint();
+									label_LaserON.repaint();
+									label_LaserOFF.repaint();
+								}
+							});
 						}
 					};
 					String macOrder = "55aa0102010bf10d";
@@ -822,12 +839,15 @@ public class MyFrame extends JFrame {
 		btnRS232_Send.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// 禁用按钮
-				btnRS232_Send.setEnabled(false);
+
 				// 延时2秒后按钮可用
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
+						// 禁用按钮
+						btnRS232_Send.setEnabled(false);
+						otherButton.setEnabled(false);
+						ascButton.setEnabled(false);
 						try {
 							Thread.sleep(2000);
 							btnRS232_Send.setEnabled(true);
@@ -838,6 +858,14 @@ public class MyFrame extends JFrame {
 				});
 
 				// TODO 将接受到的命令展示到textField_ReplyFromDevice
+
+				final boolean isOX = otherButton.isSelected();
+				if (isOX) {
+					logger.info("[界面][自定义命令][编码]:十六进制");
+				} else {
+					logger.info("[界面][自定义命令][编码]:ASC");
+				}
+
 				ComponentRepaintCallBack crcb = new ComponentRepaintCallBack(textField_ReplyFromDevice) {
 					@Override
 					public void execute(Object... objects) {
@@ -847,16 +875,49 @@ public class MyFrame extends JFrame {
 						}
 						// 消息，后面会使用
 						String mess = objects[0].toString();
-						// 目标控件
-						textField_ReplyFromDevice.setText(mess);
-						textField_ReplyFromDevice.repaint();
+						logger.info("界面[原始数据接受]:" + mess);
+						String value = "";
+						if (!isOX) {
+							try {
+								value = StringTransformUtil.hexStrToAsciiStr(mess);
+							} catch (Exception e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						} else {
+							value = mess;
+						}
+
+						final String finalValue = value;
+
+						SwingUtilities.invokeLater(new Runnable() {
+							public void run() {
+								// 目标控件
+								textField_ReplyFromDevice.setText(finalValue);
+								textField_ReplyFromDevice.repaint();
+								logger.info("界面[重绘]:textField_ReplyFromDevice:" + finalValue);
+								otherButton.setEnabled(true);
+								ascButton.setEnabled(true);
+							}
+						});
+
 					}
 
 				};
 				// 握手关键字
 				String text = textField_RS232_Send.getText();
+
 				if (!StringUtils.isEmpty(text)) {
-					crcb.setOrderMessage(StringTransformUtil.hexToBytes(text));
+					logger.info("界面[发送]:" + text);
+					if (isOX) {
+						crcb.setOrderMessage(StringTransformUtil.hexToBytes(text));
+						logger.info("界面[发送十六进制]:" + crcb.getOrderMessage());
+					} else {
+						// 先转换成16进制
+						crcb.setOrderMessage(
+								StringTransformUtil.hexToBytes(StringTransformUtil.asciiStrToHexStr(text)));
+						logger.info("界面[发送asc]:" + crcb.getOrderMessage());
+					}
 					crcb.setPriority(0);
 					try {
 						SerialPortFactory.sendMessage(crcb);
@@ -1425,7 +1486,6 @@ public class MyFrame extends JFrame {
 	 * 处理gate页面内容
 	 */
 	public void handleGate() {
-		// 握手命令
 		handleItemAndMode();
 		// 其他
 		handleGate_Control();
@@ -1628,8 +1688,9 @@ public class MyFrame extends JFrame {
 						public void run() {
 							// 连接操作，先打开通道
 							connect();
-							// 处理握手，发送消息
 							handleGate();
+							// 处理握手，发送消息
+							handshake();
 							// 开始轮询
 							dealConnect();
 							// 重绘
@@ -1751,7 +1812,7 @@ public class MyFrame extends JFrame {
 		}
 		this.handleConnect();
 		this.bindConnectEvent();
-		System.out.println("mode is :" + mode);
+		logger.info("mode is :" + mode);
 		if (mode == 1 || mode == 3) {
 			changeDB25();
 		} else if (mode == 2) {

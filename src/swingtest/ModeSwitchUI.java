@@ -13,6 +13,7 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
@@ -24,6 +25,9 @@ import org.jvnet.substance.SubstanceLookAndFeel;
 import org.jvnet.substance.api.SubstanceSkin;
 import org.jvnet.substance.skin.BusinessBlueSteelSkin;
 import org.jvnet.substance.skin.SubstanceBusinessBlueSteelLookAndFeel;
+
+import com.spark.core.ExecutorServices;
+import com.spark.core.abstrackRunnable;
 
 public class ModeSwitchUI extends JDialog {
 
@@ -111,8 +115,8 @@ public class ModeSwitchUI extends JDialog {
 			group.add(db25ModeButton);
 			group.add(rs232ModeButton);
 			group.add(gateModeButton);
-			
-			db25ModeButton.setSelected(true);//默认选中的是b1
+
+			db25ModeButton.setSelected(true);// 默认选中的是b1
 
 		}
 		{
@@ -145,18 +149,34 @@ public class ModeSwitchUI extends JDialog {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				int mode = 1;
-				boolean isDb25 = db25ModeButton.isSelected();
-				boolean isGate = gateModeButton.isSelected();
-				boolean isRS232 = rs232ModeButton.isSelected();
-				if (isDb25) {
-					mode = 1;
-				} else if (isGate) {
-					mode = 2;
-				} else if (isRS232) {
-					mode = 3;
-				}
-				parent.changeMode(mode);
+
+				ExecutorServices.getExecutorServices().submit(new abstrackRunnable() {
+
+					@Override
+					public void run() {
+						int mode = 1;
+						boolean isDb25 = db25ModeButton.isSelected();
+						boolean isGate = gateModeButton.isSelected();
+						boolean isRS232 = rs232ModeButton.isSelected();
+						if (isDb25) {
+							mode = 1;
+						} else if (isGate) {
+							mode = 2;
+						} else if (isRS232) {
+							mode = 3;
+						}
+
+						final int finalMode = mode;
+						SwingUtilities.invokeLater(new Runnable() {
+							@Override
+							public void run() {
+								parent.changeMode(finalMode);
+							}
+						});
+
+					}
+				});
+
 				ModeSwitchUI.this.setVisible(false);
 			}
 		});
