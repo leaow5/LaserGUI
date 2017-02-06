@@ -66,6 +66,9 @@ public class MyFrame extends JFrame {
 	 * 常量.
 	 */
 	private static final long serialVersionUID = 8999460803054277945L;
+	/**
+	 * 图片.
+	 */
 	final ImageIcon icon_connect = new ImageIcon("resource//green.png");
 	final ImageIcon icon_disconnect = new ImageIcon("resource//green_disconnect.png");
 	final ImageIcon icon_main = new ImageIcon("resource//icon.jpg");
@@ -131,9 +134,13 @@ public class MyFrame extends JFrame {
 	private JSlider slider_PRR_EM;
 	// 端口号
 	private JComboBox<String> comboBox;
+	// 日志
 	private Logger logger = LogManager.getLogger(getClass().getName());
+	// 主界面对象
 	static private MyFrame frame;
+	// 暂时没有用上，以后区分型号用.
 	private volatile RunTimeContext context = new RunTimeContext();
+	// 定时器
 	private Timer timer;
 
 	/**
@@ -164,7 +171,7 @@ public class MyFrame extends JFrame {
 		handleMenu();
 		// 主界面固定内容
 		handleMain();
-		// 处理连接
+		// 处理连接界面
 		handleConnect();
 		// 事件绑定
 		bindEvent();
@@ -174,15 +181,14 @@ public class MyFrame extends JFrame {
 	 * 设置显示风格 look and feel
 	 */
 	private void setStyle() {
-		SubstanceSkin skin = new BusinessBlueSteelSkin(); // 初始化有水印的皮肤
-
+		// 初始化有水印的皮肤
+		SubstanceSkin skin = new BusinessBlueSteelSkin();
 		try {
 			UIManager.setLookAndFeel(new SubstanceBusinessBlueSteelLookAndFeel());
 		} catch (UnsupportedLookAndFeelException e) {
 			e.printStackTrace();
 		}
 		SubstanceLookAndFeel.setSkin(skin);
-
 	}
 
 	/**
@@ -193,16 +199,16 @@ public class MyFrame extends JFrame {
 		setResizable(false);
 		setTitle("安扬Series Control Utility");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		// setBounds(100, 100, 1024, 768);
 		setSize(1024, 768);
 		this.setIconImage(icon_main.getImage());
 		Dimension screen = getToolkit().getScreenSize(); // 得到屏幕尺寸
 		setLocation((screen.width - getSize().width) / 2, (screen.height - getSize().height) / 2); // 设置窗口位置
-		// handleBackgroud();
 	}
 
 	/**
-	 * 设置背景
+	 * 设置背景.
+	 * 
+	 * @deprecated
 	 */
 	private void handleBackgroud() {
 		JLabel jlpic = new JLabel();
@@ -236,7 +242,7 @@ public class MyFrame extends JFrame {
 	}
 
 	/**
-	 * 处理连接
+	 * 处理连接界面.
 	 */
 	public void handleConnect() {
 		this.panel_Connect = new MyPanel();
@@ -288,50 +294,54 @@ public class MyFrame extends JFrame {
 		PropertiesUtil props = PropertiesUtil.getDefaultOrderPro();
 		ComponentRepaintCallBack crcb = new ComponentRepaintCallBack(panel_ItemType) {
 			@Override
-			public void execute(Object... objects) {
+			public void execute(final Object... objects) {
 
 				if (objects.length == 0) {
+					logger.info("握手命令没有接受到消息。");
 					return;
 				}
 				// 消息，后面会使用
-				String mess = objects[0].toString();
-				int length = mess.length();
-				String infoBefore = mess.substring(10, length - 2);
-				String inforAfter = "";
-				try {
-					inforAfter = StringTransformUtil.hexStrToAsciiStr(infoBefore);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				logger.info("界面[接受]:" + inforAfter);
-				String[] infos = inforAfter.split("\\\\");
-				// 目标控件
-				logger.info("界面[接受]:堵塞判断A");
-				JPanel target = (JPanel) getComponent();
-				if (target != null && infos.length > 0) {
-					logger.info("界面[接受]:堵塞判断B");
-					((TitledBorder) target.getBorder()).setTitle(infos[0]);
-					logger.info("界面[接受]:堵塞判断C");
-					target.repaint();
-				}
-				// 右下角窗口
-				logger.info("界面[接受]:堵塞判断D");
-				TableModel dataModel = table_Info.getModel();
-				// 通用的Jtable处理方式，其他的也是如此
-				logger.info("界面[接受]:堵塞判断E");
-				int tableLength = dataModel.getRowCount();
-				// 第一行第二列内容,例子如下
-				logger.info("界面[接受]:堵塞判断F");
-				for (int i = 0; i < tableLength; i++) {
-					dataModel.setValueAt(infos[i], i, 1);
-				}
-				logger.info("界面[接受]:堵塞判断G");
-				logger.info("界面[重绘]:table_Info:" + inforAfter);
-				table_Info.repaint();
-				logger.info("界面[重绘]:frame:" + inforAfter);
-				frame.repaint();
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						String mess = objects[0].toString();
+						int length = mess.length();
+						String infoBefore = mess.substring(10, length - 2);
+						String inforAfter = "";
+						try {
+							inforAfter = StringTransformUtil.hexStrToAsciiStr(infoBefore);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+						logger.info("界面[接受]:" + inforAfter);
+						String[] infos = inforAfter.split("\\\\");
+						// 目标控件
+						logger.info("界面[接受]:堵塞判断A");
+						JPanel target = (JPanel) getComponent();
+						if (target != null && infos.length > 0) {
+							logger.info("界面[接受]:堵塞判断B");
+							((TitledBorder) target.getBorder()).setTitle(infos[0]);
+							logger.info("界面[接受]:堵塞判断C");
+							target.repaint();
+						}
+						// 右下角窗口
+						logger.info("界面[接受]:堵塞判断D");
+						TableModel dataModel = table_Info.getModel();
+						// 通用的Jtable处理方式，其他的也是如此
+						logger.info("界面[接受]:堵塞判断E");
+						int tableLength = dataModel.getRowCount();
+						// 第一行第二列内容,例子如下
+						logger.info("界面[接受]:堵塞判断F");
+						for (int i = 0; i < tableLength; i++) {
+							dataModel.setValueAt(infos[i], i, 1);
+						}
+						logger.info("界面[接受]:堵塞判断G");
+						logger.info("界面[重绘]:table_Info:" + inforAfter);
+						table_Info.repaint();
+						logger.info("界面[重绘]:frame:" + inforAfter);
+						frame.repaint();
+					}
+				});
 			}
-
 		};
 		// 握手关键字
 		String macOrder = props.getProperty("HANDSHAKE_ORDER");
@@ -1417,6 +1427,7 @@ public class MyFrame extends JFrame {
 	public void handleGate() {
 		// 握手命令
 		handleItemAndMode();
+		// 其他
 		handleGate_Control();
 		handlePRRAndSetForGate();
 		handleStatusForGate();
@@ -1602,7 +1613,6 @@ public class MyFrame extends JFrame {
 	 * 连接事件
 	 */
 	private void bindConnectEvent() {
-		// TODO 处理连接逻辑??
 		// 连接事件
 		btnConnect.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -1616,9 +1626,9 @@ public class MyFrame extends JFrame {
 
 						@Override
 						public void run() {
-							// 连接操作
+							// 连接操作，先打开通道
 							connect();
-							// 处理握手
+							// 处理握手，发送消息
 							handleGate();
 							// 开始轮询
 							dealConnect();
@@ -1941,42 +1951,47 @@ public class MyFrame extends JFrame {
 	/**
 	 * 定时任务启动
 	 */
-  
+
 	private void startTimerTask() {
 		timer = new Timer(true);
 		final PropertiesUtil props = PropertiesUtil.getDefaultOrderPro();
-		int interval =  Integer.valueOf(props.getProperty("INTERVAL_TIME"));
+		int interval = Integer.valueOf(props.getProperty("INTERVAL_TIME"));
 		timer.schedule(new java.util.TimerTask() {
 			public void run() {
 				// moniter轮询
-//				PropertiesUtil props = PropertiesUtil.getDefaultOrderPro();
+				// PropertiesUtil props = PropertiesUtil.getDefaultOrderPro();
 				ComponentRepaintCallBack crcb = new ComponentRepaintCallBack(table_Monitor) {
 					@Override
-					public void execute(Object... objects) {
+					public void execute(final Object... objects) {
 
-						String mess = objects[0].toString();
-						int length = mess.length();
-						String infoBefore = mess.substring(10, length - 2);
-						String inforAfter = "";
-						try {
-							inforAfter = StringTransformUtil.hexStrToAsciiStr(infoBefore);
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-						logger.info(inforAfter);
-						String[] infos = inforAfter.split("\\\\");
+						SwingUtilities.invokeLater(new Runnable() {
 
-						// 右下角窗口
-						TableModel dataModel = table_Monitor.getModel();
-						// 通用的Jtable处理方式，其他的也是如此
-						int tableLength = dataModel.getRowCount();
-						// 第一行第二列内容,例子如下
-						for (int i = 0; i < tableLength; i++) {
-							dataModel.setValueAt(infos[i], i, 1);
-						}
-						table_Monitor.repaint();
+							@Override
+							public void run() {
+								String mess = objects[0].toString();
+								int length = mess.length();
+								String infoBefore = mess.substring(10, length - 2);
+								String inforAfter = "";
+								try {
+									inforAfter = StringTransformUtil.hexStrToAsciiStr(infoBefore);
+								} catch (Exception e) {
+									e.printStackTrace();
+								}
+								logger.info(inforAfter);
+								String[] infos = inforAfter.split("\\\\");
+
+								// 右下角窗口
+								TableModel dataModel = table_Monitor.getModel();
+								// 通用的Jtable处理方式，其他的也是如此
+								int tableLength = dataModel.getRowCount();
+								// 第一行第二列内容,例子如下
+								for (int i = 0; i < tableLength; i++) {
+									dataModel.setValueAt(infos[i], i, 1);
+								}
+								table_Monitor.repaint();
+							}
+						});
 					}
-
 				};
 				// monitor
 				String macOrder = "55aa01f80101050d";
@@ -1992,7 +2007,7 @@ public class MyFrame extends JFrame {
 			}
 		}, 0, interval);
 
-//		timer.cancel();
+		// timer.cancel();
 		return;
 	}
 }
