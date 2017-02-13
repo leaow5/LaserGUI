@@ -14,6 +14,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.Timer;
@@ -33,8 +34,10 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
@@ -119,7 +122,7 @@ public class MyFrame extends JFrame {
 	private JTable table_Info;
 	private JFormattedTextField textField_outputPower;
 	private JTextField textField;
-	private JFormattedTextField textField_RS232_Send;
+	private JTextArea textField_RS232_Send;
 	private JTextField textField_ReplyFromDevice;
 	private JPanel panel_Monitor1;
 	private JButton btnResetAlarms;
@@ -826,10 +829,16 @@ public class MyFrame extends JFrame {
 
 		ascButton.setSelected(true);
 
-		textField_RS232_Send = new JFormattedTextField();
+		textField_RS232_Send = new JTextArea();
 		textField_RS232_Send.setBounds(10, 35, 350, 21);
 		panel_1.add(textField_RS232_Send);
 		textField_RS232_Send.setColumns(10);
+//		JScrollPane scroll = new JScrollPane(textField_RS232_Send); 
+		
+//		scroll.setHorizontalScrollBarPolicy( 
+//				JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS); 
+//		scroll.setVerticalScrollBarPolicy( 
+//				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
 		// 命令行发送按钮
 		btnRS232_Send = new JButton("Send");
@@ -904,7 +913,7 @@ public class MyFrame extends JFrame {
 					}
 
 				};
-				// 握手关键字
+				// 自定义命令发送
 				String text = textField_RS232_Send.getText();
 
 				if (!StringUtils.isEmpty(text)) {
@@ -914,8 +923,13 @@ public class MyFrame extends JFrame {
 						logger.info("界面[发送十六进制]:" + crcb.getOrderMessage());
 					} else {
 						// 先转换成16进制
-						crcb.setOrderMessage(
-								StringTransformUtil.hexToBytes(StringTransformUtil.asciiStrToHexStr(text)));
+						try {
+							crcb.setOrderMessage(
+									StringTransformUtil.asciiToBytes(text));
+						} catch (UnsupportedEncodingException e1) {
+							logger.error(e1);
+							e1.printStackTrace();
+						}
 						logger.info("界面[发送asc]:" + crcb.getOrderMessage());
 					}
 					crcb.setPriority(0);
@@ -937,6 +951,8 @@ public class MyFrame extends JFrame {
 		textField_ReplyFromDevice = new JTextField();
 		textField_ReplyFromDevice.setColumns(10);
 		textField_ReplyFromDevice.setBounds(10, 74, 450, 21);
+		 
+//		textField_ReplyFromDevice.setText("111");
 		panel_1.add(textField_ReplyFromDevice);
 
 		JPanel panel_UserInterface = new MyPanel();
