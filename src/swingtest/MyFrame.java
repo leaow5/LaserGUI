@@ -540,18 +540,7 @@ public class MyFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				// 禁用按钮
 				button_Laser.setEnabled(false);
-				// 延时2秒后按钮可用
-				SwingUtilities.invokeLater(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							Thread.sleep(2000);
-							button_Laser.setEnabled(true);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-					}
-				});
+			
 				// 获取当前状态：判断是label_LaserON的mage
 				if (label_LaserON.getIcon() == icon_green) {
 					// TODO 说明当前是开启状态，发送关闭命令
@@ -563,12 +552,13 @@ public class MyFrame extends JFrame {
 								return;
 							}
 							// 消息，后面会使用
-							String mess = objects[0].toString();
+							final String mess = objects[0].toString();
 							logger.info("[命令]接受：" + mess);
 							// 目标控件
 							SwingUtilities.invokeLater(new Runnable() {
 								@Override
 								public void run() {
+									logger.info("[命令]接受：" + mess + " OFF--》green,ON-->dark");
 									label_LaserON.setIcon(icon_dark);
 									label_LaserOFF.setIcon(icon_green);
 
@@ -601,12 +591,13 @@ public class MyFrame extends JFrame {
 								return;
 							}
 							// 消息，后面会使用
-							String mess = objects[0].toString();
+							final String mess = objects[0].toString();
 							logger.info("[命令]接受：" + mess);
 							// 结束
 							SwingUtilities.invokeLater(new Runnable() {
 								@Override
 								public void run() {
+									logger.info("[命令]接受：" + mess + " ON--》green,OFF-->dark");
 									label_LaserON.setIcon(icon_green);
 									label_LaserOFF.setIcon(icon_dark);
 
@@ -622,13 +613,23 @@ public class MyFrame extends JFrame {
 					try {
 						SerialPortFactory.sendMessage(crcb);
 					} catch (Exception e1) {
-						// TODO Auto-generated catch block
 						logger.error(e1);
 						e1.printStackTrace();
 					}
 
 				}
-				// panel_RS232_SR.repaint();
+				// 延时2秒后按钮可用
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							Thread.sleep(2000);
+							button_Laser.setEnabled(true);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+				});
 			}
 		});
 
@@ -920,9 +921,11 @@ public class MyFrame extends JFrame {
 					logger.info("界面[发送]:" + text);
 					if (isOX) {
 						crcb.setOrderMessage(StringTransformUtil.hexToBytes(text));
+						crcb.setCharset(true);
 						logger.info("界面[发送十六进制]:" + crcb.getOrderMessage());
 					} else {
 						// 先转换成16进制
+						crcb.setCharset(false);
 						try {
 							crcb.setOrderMessage(
 									StringTransformUtil.asciiToBytes(text));
