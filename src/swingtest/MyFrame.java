@@ -34,7 +34,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
@@ -58,6 +57,7 @@ import org.jvnet.substance.api.SubstanceSkin;
 import org.jvnet.substance.skin.BusinessBlueSteelSkin;
 import org.jvnet.substance.skin.SubstanceBusinessBlueSteelLookAndFeel;
 
+import com.spark.core.CommandLineCallBack;
 import com.spark.core.ComponentRepaintCallBack;
 import com.spark.core.SerialPortFactory;
 import com.spark.utils.StringTransformUtil;
@@ -876,7 +876,7 @@ public class MyFrame extends JFrame {
 					logger.info("[界面][自定义命令][编码]:ASC");
 				}
 
-				ComponentRepaintCallBack crcb = new ComponentRepaintCallBack(textField_ReplyFromDevice) {
+				CommandLineCallBack crcb = new CommandLineCallBack(textField_ReplyFromDevice) {
 					@Override
 					public void execute(Object... objects) {
 
