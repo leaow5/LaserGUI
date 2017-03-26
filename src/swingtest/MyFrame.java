@@ -887,18 +887,20 @@ public class MyFrame extends JFrame {
 						String mess = objects[0].toString();
 						logger.info("界面[原始数据接受]:" + mess);
 						String value = "";
+						//ascii需要处理，这里是取反的
 						if (!isOX) {
+							value = mess;
+							logger.info("界面[转换为十六进制]:" + value);
+						} else {
 							try {
 								value = StringTransformUtil.hexStrToAsciiStr(mess);
+								logger.info("界面[转换为ascii]:" + value);
 							} catch (Exception e) {
-								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
-						} else {
-							value = mess;
 						}
-
-						final String finalValue = value;
+						//减去最后2位，因为可能是0D
+						final String finalValue = value.substring(0, value.length()-2);
 
 						SwingUtilities.invokeLater(new Runnable() {
 							public void run() {
@@ -2036,6 +2038,11 @@ public class MyFrame extends JFrame {
 		timer = new Timer(true);
 		final PropertiesUtil props = PropertiesUtil.getDefaultOrderPro();
 		int interval = Integer.valueOf(props.getProperty("INTERVAL_TIME"));
+		//如果设置为0，表示关闭
+		if(interval ==0){
+			return ;
+		}
+		//开始设置周期
 		timer.schedule(new java.util.TimerTask() {
 			public void run() {
 				// moniter轮询
@@ -2087,7 +2094,6 @@ public class MyFrame extends JFrame {
 			}
 		}, 0, interval);
 
-		// timer.cancel();
 		return;
 	}
 }
