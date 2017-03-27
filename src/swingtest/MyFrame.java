@@ -559,8 +559,13 @@ public class MyFrame extends JFrame {
 								@Override
 								public void run() {
 									logger.info("[命令]接受：" + mess + " OFF--》green,ON-->dark");
-									label_LaserON.setIcon(icon_dark);
-									label_LaserOFF.setIcon(icon_green);
+									if(mess.substring(10,14).equalsIgnoreCase("b04c")){
+										label_LaserON.setIcon(icon_dark);
+										label_LaserOFF.setIcon(icon_green);
+									}else{
+										label_LaserON.setIcon(icon_green);
+										label_LaserOFF.setIcon(icon_dark);
+									}
 
 									label_LaserON.repaint();
 									label_LaserOFF.repaint();
@@ -598,9 +603,14 @@ public class MyFrame extends JFrame {
 								@Override
 								public void run() {
 									logger.info("[命令]接受：" + mess + " ON--》green,OFF-->dark");
-									label_LaserON.setIcon(icon_green);
-									label_LaserOFF.setIcon(icon_dark);
-
+									if(mess.substring(10,14).equalsIgnoreCase("b04c")){
+										label_LaserON.setIcon(icon_dark);
+										label_LaserOFF.setIcon(icon_green);
+									}else{
+										label_LaserON.setIcon(icon_green);
+										label_LaserOFF.setIcon(icon_dark);
+									}
+									
 									label_LaserON.repaint();
 									label_LaserOFF.repaint();
 								}
