@@ -543,7 +543,7 @@ public class MyFrame extends JFrame {
 			
 				// 获取当前状态：判断是label_LaserON的mage
 				if (label_LaserON.getIcon() == icon_green) {
-					// TODO 说明当前是开启状态，发送关闭命令
+					//  说明当前是开启状态，发送关闭命令
 					ComponentRepaintCallBack crcb = new ComponentRepaintCallBack(label_LaserON) {
 						@Override
 						public void execute(Object... objects) {
@@ -582,7 +582,7 @@ public class MyFrame extends JFrame {
 					}
 
 				} else {
-					// TODO 说明当前是关闭状态，发送开启命令
+					//  说明当前是关闭状态，发送开启命令
 					ComponentRepaintCallBack crcb = new ComponentRepaintCallBack(label_LaserON) {
 						@Override
 						public void execute(Object... objects) {
@@ -888,7 +888,7 @@ public class MyFrame extends JFrame {
 						logger.info("界面[原始数据接受]:" + mess);
 						String value = "";
 						//ascii需要处理，这里是取反的
-						if (!isOX) {
+						if (isOX) {
 							value = mess;
 							logger.info("界面[转换为十六进制]:" + value);
 						} else {
