@@ -910,7 +910,7 @@ public class MyFrame extends JFrame {
 							}
 						}
 						//减去最后2位，因为可能是0D
-						final String finalValue = value.substring(0, value.length()-2);
+						final String finalValue = value;
 
 						SwingUtilities.invokeLater(new Runnable() {
 							public void run() {
@@ -932,15 +932,16 @@ public class MyFrame extends JFrame {
 				if (!StringUtils.isEmpty(text)) {
 					logger.info("界面[发送]:" + text);
 					if (isOX) {
-						crcb.setOrderMessage(StringTransformUtil.hexToBytes(text));
+						crcb.setOrderMessage(StringTransformUtil.hexToBytes(StringTransformUtil.replaceBlank(text)));
 						crcb.setCharset(true);
 						logger.info("界面[发送十六进制]:" + crcb.getOrderMessage());
 					} else {
 						// 先转换成16进制
 						crcb.setCharset(false);
 						try {
+							char c = '\r';
 							crcb.setOrderMessage(
-									StringTransformUtil.asciiToBytes(text));
+									StringTransformUtil.asciiToBytes(text.trim()+c));
 						} catch (UnsupportedEncodingException e1) {
 							logger.error(e1);
 							e1.printStackTrace();
