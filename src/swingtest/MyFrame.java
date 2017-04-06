@@ -121,7 +121,7 @@ public class MyFrame extends JFrame {
 	private JTable table_Monitor;
 	private JTable table_Info;
 	private JFormattedTextField textField_outputPower;
-	private JTextField textField;
+	private JTextField textField_plus;
 	private JTextArea textField_RS232_Send;
 	private JTextField textField_ReplyFromDevice;
 	private JPanel panel_Monitor1;
@@ -540,10 +540,10 @@ public class MyFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				// 禁用按钮
 				button_Laser.setEnabled(false);
-			
+
 				// 获取当前状态：判断是label_LaserON的mage
 				if (label_LaserON.getIcon() == icon_green) {
-					//  说明当前是开启状态，发送关闭命令
+					// 说明当前是开启状态，发送关闭命令
 					ComponentRepaintCallBack crcb = new ComponentRepaintCallBack(label_LaserON) {
 						@Override
 						public void execute(Object... objects) {
@@ -559,10 +559,10 @@ public class MyFrame extends JFrame {
 								@Override
 								public void run() {
 									logger.info("[命令]接受：" + mess + " OFF--》green,ON-->dark");
-									if(mess.substring(10,14).equalsIgnoreCase("b04c")){
+									if (mess.substring(10, 14).equalsIgnoreCase("b04c")) {
 										label_LaserON.setIcon(icon_dark);
 										label_LaserOFF.setIcon(icon_green);
-									}else{
+									} else {
 										label_LaserON.setIcon(icon_green);
 										label_LaserOFF.setIcon(icon_dark);
 									}
@@ -587,7 +587,7 @@ public class MyFrame extends JFrame {
 					}
 
 				} else {
-					//  说明当前是关闭状态，发送开启命令
+					// 说明当前是关闭状态，发送开启命令
 					ComponentRepaintCallBack crcb = new ComponentRepaintCallBack(label_LaserON) {
 						@Override
 						public void execute(Object... objects) {
@@ -603,14 +603,14 @@ public class MyFrame extends JFrame {
 								@Override
 								public void run() {
 									logger.info("[命令]接受：" + mess + " ON--》green,OFF-->dark");
-									if(mess.substring(10,14).equalsIgnoreCase("b04c")){
+									if (mess.substring(10, 14).equalsIgnoreCase("b04c")) {
 										label_LaserON.setIcon(icon_dark);
 										label_LaserOFF.setIcon(icon_green);
-									}else{
+									} else {
 										label_LaserON.setIcon(icon_green);
 										label_LaserOFF.setIcon(icon_dark);
 									}
-									
+
 									label_LaserON.repaint();
 									label_LaserOFF.repaint();
 								}
@@ -756,25 +756,27 @@ public class MyFrame extends JFrame {
 		panel_PRR_EM.setBounds(10, 220, 482, 65);
 		panel_RS232_SR.add(panel_PRR_EM);
 
-		slider_PRR_EM = new JSlider(0, 5000, 0);
+		slider_PRR_EM = new JSlider(0, 2000, 100);
 		slider_PRR_EM.setBackground(new Color(240, 255, 255));
 		slider_PRR_EM.setSnapToTicks(true);
 		slider_PRR_EM.setPaintTicks(true);
 		slider_PRR_EM.setPaintLabels(true);
-		slider_PRR_EM.setMinorTickSpacing(200);
-		slider_PRR_EM.setMajorTickSpacing(1000);
+//		slider_PRR_EM.setMinorTickSpacing(20000);
+		slider_PRR_EM.setMajorTickSpacing(200);
 		slider_PRR_EM.setEnabled(false);
 		slider_PRR_EM.setBounds(10, 16, 300, 40);
 		panel_PRR_EM.add(slider_PRR_EM);
+		
+		NumberFormat nf=NumberFormat.getIntegerInstance();
+		nf.setGroupingUsed(false);
+		textField_plus = new JFormattedTextField(nf);
+		textField_plus.setText("0");
+		textField_plus.setHorizontalAlignment(SwingConstants.RIGHT);
+		textField_plus.setColumns(10);
+		textField_plus.setBounds(316, 28, 55, 21);
+		panel_PRR_EM.add(textField_plus);
 
-		textField = new JFormattedTextField(NumberFormat.getIntegerInstance());
-		textField.setText("0");
-		textField.setHorizontalAlignment(SwingConstants.RIGHT);
-		textField.setColumns(10);
-		textField.setBounds(330, 28, 55, 21);
-		panel_PRR_EM.add(textField);
-
-		textField.addKeyListener(new KeyListener() {
+		textField_plus.addKeyListener(new KeyListener() {
 
 			@Override
 			public void keyTyped(KeyEvent e) {
@@ -784,15 +786,15 @@ public class MyFrame extends JFrame {
 
 			@Override
 			public void keyReleased(KeyEvent e) {
-				String text = textField.getText().replaceAll("[^0-9]", "");
+				String text = textField_plus.getText().replaceAll("[^0-9]", "");
 				if (Strings.isBlank(text)) {
 					text = "0";
 				}
 				int val = Integer.valueOf(text);
-				if (val > 5000) {
-					val = 5000;
+				if (val > 2000) {
+					val = 2000;
 				}
-				textField.setText(val + "");
+				textField_plus.setText(val + "");
 				slider_PRR_EM.setValue(val);
 			}
 
@@ -803,9 +805,9 @@ public class MyFrame extends JFrame {
 		});
 
 		JLabel lblKhz = new JLabel((Icon) null);
-		lblKhz.setText("kHz");
+		lblKhz.setText("100kHz");
 		lblKhz.setHorizontalAlignment(SwingConstants.LEFT);
-		lblKhz.setBounds(387, 28, 40, 20);
+		lblKhz.setBounds(372, 28, 40, 20);
 		panel_PRR_EM.add(lblKhz);
 
 		btnPulseSend = new JButton("send");
@@ -844,12 +846,12 @@ public class MyFrame extends JFrame {
 		textField_RS232_Send.setBounds(10, 35, 350, 21);
 		panel_1.add(textField_RS232_Send);
 		textField_RS232_Send.setColumns(10);
-//		JScrollPane scroll = new JScrollPane(textField_RS232_Send); 
-		
-//		scroll.setHorizontalScrollBarPolicy( 
-//				JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS); 
-//		scroll.setVerticalScrollBarPolicy( 
-//				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		// JScrollPane scroll = new JScrollPane(textField_RS232_Send);
+
+		// scroll.setHorizontalScrollBarPolicy(
+		// JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		// scroll.setVerticalScrollBarPolicy(
+		// JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
 		// 命令行发送按钮
 		btnRS232_Send = new JButton("Send");
@@ -897,7 +899,7 @@ public class MyFrame extends JFrame {
 						String mess = objects[0].toString();
 						logger.info("界面[原始数据接受]:" + mess);
 						String value = "";
-						//ascii需要处理，这里是取反的
+						// ascii需要处理，这里是取反的
 						if (isOX) {
 							value = mess;
 							logger.info("界面[转换为十六进制]:" + value);
@@ -909,7 +911,7 @@ public class MyFrame extends JFrame {
 								e.printStackTrace();
 							}
 						}
-						//减去最后2位，因为可能是0D
+						// 减去最后2位，因为可能是0D
 						final String finalValue = value;
 
 						SwingUtilities.invokeLater(new Runnable() {
@@ -940,8 +942,7 @@ public class MyFrame extends JFrame {
 						crcb.setCharset(false);
 						try {
 							char c = '\r';
-							crcb.setOrderMessage(
-									StringTransformUtil.asciiToBytes(text.trim()+c));
+							crcb.setOrderMessage(StringTransformUtil.asciiToBytes(text.trim() + c));
 						} catch (UnsupportedEncodingException e1) {
 							logger.error(e1);
 							e1.printStackTrace();
@@ -967,8 +968,8 @@ public class MyFrame extends JFrame {
 		textField_ReplyFromDevice = new JTextField();
 		textField_ReplyFromDevice.setColumns(10);
 		textField_ReplyFromDevice.setBounds(10, 74, 450, 21);
-		 
-//		textField_ReplyFromDevice.setText("111");
+
+		// textField_ReplyFromDevice.setText("111");
 		panel_1.add(textField_ReplyFromDevice);
 
 		JPanel panel_UserInterface = new MyPanel();
@@ -1974,24 +1975,29 @@ public class MyFrame extends JFrame {
 							return;
 						}
 						// 消息，后面会使用
+						
 						String mess = objects[0].toString();
-						String result = mess.substring(10, 12);
+						logger.info("界面[接受：power set]:" + mess);
+						final String result = mess.substring(10, 12);
 						// TODO 对返回的数据转换成数字
 						// 目标控件
-						result = Integer.valueOf(result, 16).toString();
-						TableModel tablemodel = table_OperParam.getModel();
-						tablemodel.setValueAt(result, 0, 1);
-						table_OperParam.repaint();
+						SwingUtilities.invokeLater(new Runnable() {
+							@Override
+							public void run() {
+								String result2 = Integer.valueOf(result, 16).toString();
+								logger.info("界面[接受:power set]:准备刷新" + result2);
+								TableModel tablemodel = table_OperParam.getModel();
+								tablemodel.setValueAt(result2, 5, 1);
+								table_OperParam.repaint();
+							}
+						});
 					}
 
 				};
 				// 握手关键字
 				String text = textField_outputPower.getText();
 				Integer value = Integer.valueOf(text);
-				String hex = Integer.toHexString(value);
-				if (hex.length() == 1) {
-					hex = "0" + hex;
-				}
+				String hex = getHexString(value,2);
 				String macOrder = "55aa010801" + hex + "f00d";
 				crcb.setOrderMessage(StringTransformUtil.hexToBytes(macOrder));
 				crcb.setPriority(0);
@@ -2029,6 +2035,54 @@ public class MyFrame extends JFrame {
 					}
 				});
 				// TODO 发送PLUS 命令
+				PropertiesUtil props = PropertiesUtil.getDefaultOrderPro();
+				ComponentRepaintCallBack crcb = new ComponentRepaintCallBack(table_OperParam) {
+					@Override
+					public void execute(Object... objects) {
+
+						if (objects.length == 0) {
+							return;
+						}
+						// 消息，后面会使用
+						
+						String mess = objects[0].toString();
+						logger.info("界面[接受：plus]:" + mess);
+						final String result = mess.substring(10, 14);
+						// TODO 对返回的数据转换成数字
+						// 目标控件
+						SwingUtilities.invokeLater(new Runnable() {
+							@Override
+							public void run() {
+								String result2 = Integer.valueOf(result, 16).toString();
+								logger.info("界面[接受:plus]:准备刷新" + result2);
+								TableModel tablemodel = table_OperParam.getModel();
+								tablemodel.setValueAt(result2, 6, 1);
+								table_OperParam.repaint();
+							}
+						});
+					}
+
+				};
+				// 握手关键字
+				String text = textField_plus.getText();
+				logger.info("[界面发送 plus]源命令："+text);
+				Integer value = Integer.valueOf(text);
+				//最小单位100KHz
+//				Integer min = 100;
+				String hex = getHexString(value,4);
+	
+				//55 aa 01 03 01 xx xx 0d
+				String macOrder = "55aa010301" + hex + "0d";
+				logger.info("[界面发送 plus]发送命令："+macOrder);
+				crcb.setOrderMessage(StringTransformUtil.hexToBytes(macOrder));
+				crcb.setPriority(0);
+				try {
+					SerialPortFactory.sendMessage(crcb);
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					logger.error(e1);
+					e1.printStackTrace();
+				}
 			}
 		});
 	}
@@ -2049,11 +2103,11 @@ public class MyFrame extends JFrame {
 		timer = new Timer(true);
 		final PropertiesUtil props = PropertiesUtil.getDefaultOrderPro();
 		int interval = Integer.valueOf(props.getProperty("INTERVAL_TIME"));
-		//如果设置为0，表示关闭
-		if(interval ==0){
-			return ;
+		// 如果设置为0，表示关闭
+		if (interval == 0) {
+			return;
 		}
-		//开始设置周期
+		// 开始设置周期
 		timer.schedule(new java.util.TimerTask() {
 			public void run() {
 				// moniter轮询
@@ -2106,5 +2160,22 @@ public class MyFrame extends JFrame {
 		}, 0, interval);
 
 		return;
+	}
+	
+	/**
+	 * 得到十六进制数的静态方法
+	 * @param decimalNumber 十进制数
+	 * @return 四位十六进制数字符串
+	 */
+	String getHexString(int decimalNumber, int length) {
+		// 将十进制数转为十六进制数
+		String hex = Integer.toHexString(decimalNumber);
+		// 转为大写
+		hex = hex.toUpperCase();
+		// 加长到四位字符，用0补齐
+		while (hex.length() < length) {
+			hex = "0" + hex;
+		}
+		return hex;
 	}
 }
