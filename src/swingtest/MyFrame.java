@@ -761,7 +761,7 @@ public class MyFrame extends JFrame {
 		slider_PRR_EM.setSnapToTicks(true);
 		slider_PRR_EM.setPaintTicks(true);
 		slider_PRR_EM.setPaintLabels(true);
-//		slider_PRR_EM.setMinorTickSpacing(20000);
+		slider_PRR_EM.setMinorTickSpacing(10);
 		slider_PRR_EM.setMajorTickSpacing(200);
 		slider_PRR_EM.setEnabled(false);
 		slider_PRR_EM.setBounds(10, 16, 300, 40);
