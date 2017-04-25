@@ -13,6 +13,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.text.NumberFormat;
@@ -761,8 +762,8 @@ public class MyFrame extends JFrame {
 		slider_PRR_EM.setSnapToTicks(true);
 		slider_PRR_EM.setPaintTicks(true);
 		slider_PRR_EM.setPaintLabels(true);
-		slider_PRR_EM.setMinorTickSpacing(10);
-		slider_PRR_EM.setMajorTickSpacing(200);
+		slider_PRR_EM.setMinorTickSpacing(100);
+		slider_PRR_EM.setMajorTickSpacing(400);
 		slider_PRR_EM.setEnabled(false);
 		slider_PRR_EM.setBounds(10, 16, 300, 40);
 		panel_PRR_EM.add(slider_PRR_EM);
@@ -773,7 +774,7 @@ public class MyFrame extends JFrame {
 		textField_plus.setText("0");
 		textField_plus.setHorizontalAlignment(SwingConstants.RIGHT);
 		textField_plus.setColumns(10);
-		textField_plus.setBounds(316, 28, 55, 21);
+		textField_plus.setBounds(324, 28, 55, 21);
 		panel_PRR_EM.add(textField_plus);
 
 		textField_plus.addKeyListener(new KeyListener() {
@@ -805,9 +806,9 @@ public class MyFrame extends JFrame {
 		});
 
 		JLabel lblKhz = new JLabel((Icon) null);
-		lblKhz.setText("100kHz");
+		lblKhz.setText("kHz");
 		lblKhz.setHorizontalAlignment(SwingConstants.LEFT);
-		lblKhz.setBounds(372, 28, 40, 20);
+		lblKhz.setBounds(382, 28, 40, 20);
 		panel_PRR_EM.add(lblKhz);
 
 		btnPulseSend = new JButton("send");
@@ -1028,11 +1029,11 @@ public class MyFrame extends JFrame {
 		// panel_PulseMode.add(btnMonopulse);
 		// btnMonopulse.setActionCommand("Save to laser\r\nEEPROM");
 
-		btnAOFT = new JButton("AOFT1");
+		btnAOFT = new JButton("AOTF1");
 		btnAOFT.setBounds(50, 18, 153, 42);
 		panel_PulseMode.add(btnAOFT);
 
-		btnAOFT2 = new JButton("AOFT2");
+		btnAOFT2 = new JButton("AOTF2");
 		btnAOFT2.setBounds(240, 18, 153, 42);
 		panel_PulseMode.add(btnAOFT2);
 
@@ -1122,7 +1123,7 @@ public class MyFrame extends JFrame {
 		// panel_PulseMode.add(btnMonopulse);
 		// // btnMonopulse.setActionCommand("Save to laser\r\nEEPROM");
 
-		btnAOFT = new JButton("AOFT");
+		btnAOFT = new JButton("AOTF");
 		btnAOFT.setBounds(187, 22, 153, 42);
 		panel_PulseMode.add(btnAOFT);
 
@@ -1466,7 +1467,7 @@ public class MyFrame extends JFrame {
 								new Object[][] { { "Model", "XXXX" }, { "Manufacturer", "XXXX" },
 										{ "Serial Number ", "XXXX" }, { "Firmware", "XXXX" }, },
 								new String[] { "", "" }));
-		table_Info.getColumnModel().getColumn(0).setPreferredWidth(141);
+		table_Info.getColumnModel().getColumn(0).setPreferredWidth(90);
 		// table_Info.setBackground(UIManager.getColor("Panel.background"));
 		panel_info.add(table_Info);
 
@@ -1566,10 +1567,10 @@ public class MyFrame extends JFrame {
 		table_Info
 				.setModel(
 						new DefaultTableModel(
-								new Object[][] { { "Model", "XXXX" }, { "Manufacturer", "XXXX" },
+								new Object[][] { { "Model", "XXXXXXXXXXX" }, { "Manufacturer", "XXXX" },
 										{ "Serial Number ", "XXXX" }, { "Firmware", "XXXX" }, },
 								new String[] { "", "" }));
-		table_Info.getColumnModel().getColumn(0).setPreferredWidth(141);
+		table_Info.getColumnModel().getColumn(0).setPreferredWidth(90);
 		table_Info.setBackground(UIManager.getColor("Panel.background"));
 		panel_info.add(table_Info);
 
@@ -1873,9 +1874,14 @@ public class MyFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// 第一个参数为程序名，第二个参数为程序打开的内容路径
-				String[] cmd = { "Notepad.exe", "D:\\1.txt" };
+				File directory = new File("");//设定为当前文件夹 
+				String newPath = "";
+				//获取绝对路径 
+				newPath = directory.getAbsolutePath();
+				newPath = newPath + "\\AOTF\\AOTF-RF1\\AOTFController.exe";
+				logger.info("打开AOTFController, 路径为：" + newPath);
 				try {
-					Runtime.getRuntime().exec(cmd);
+					Runtime.getRuntime().exec(newPath);
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -1888,9 +1894,15 @@ public class MyFrame extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String[] cmd = { "Notepad.exe", "D:\\1.txt" };
+				// 第一个参数为程序名，第二个参数为程序打开的内容路径
+				File directory = new File("");//设定为当前文件夹 
+				String newPath = "";
+				//获取绝对路径 
+				newPath = directory.getAbsolutePath();
+				newPath = newPath + "\\AOTF\\AOTF-RF2\\AOTFController.exe";
+				logger.info("打开AOTFController, 路径为：" + newPath);
 				try {
-					Runtime.getRuntime().exec(cmd);
+					Runtime.getRuntime().exec(newPath);
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
