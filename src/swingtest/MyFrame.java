@@ -2048,6 +2048,7 @@ public class MyFrame extends JFrame {
 				});
 				// TODO 发送PLUS 命令
 				PropertiesUtil props = PropertiesUtil.getDefaultOrderPro();
+				final Integer min = 100;
 				ComponentRepaintCallBack crcb = new ComponentRepaintCallBack(table_OperParam) {
 					@Override
 					public void execute(Object... objects) {
@@ -2065,7 +2066,7 @@ public class MyFrame extends JFrame {
 						SwingUtilities.invokeLater(new Runnable() {
 							@Override
 							public void run() {
-								String result2 = Integer.valueOf(result, 16).toString();
+								String result2 = Integer.valueOf(result, 16).toString()+"00";
 								logger.info("界面[接受:plus]:准备刷新" + result2);
 								TableModel tablemodel = table_OperParam.getModel();
 								tablemodel.setValueAt(result2, 6, 1);
@@ -2079,9 +2080,8 @@ public class MyFrame extends JFrame {
 				String text = textField_plus.getText();
 				logger.info("[界面发送 plus]源命令："+text);
 				Integer value = Integer.valueOf(text);
-				//最小单位100KHz
-//				Integer min = 100;
-				String hex = getHexString(value,4);
+
+				String hex = getHexString(value/min,4);
 	
 				//55 aa 01 03 01 xx xx 0d
 				String macOrder = "55aa010301" + hex + "0d";
