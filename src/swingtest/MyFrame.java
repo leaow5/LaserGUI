@@ -767,8 +767,8 @@ public class MyFrame extends JFrame {
 		slider_PRR_EM.setEnabled(false);
 		slider_PRR_EM.setBounds(10, 16, 300, 40);
 		panel_PRR_EM.add(slider_PRR_EM);
-		
-		NumberFormat nf=NumberFormat.getIntegerInstance();
+
+		NumberFormat nf = NumberFormat.getIntegerInstance();
 		nf.setGroupingUsed(false);
 		textField_plus = new JFormattedTextField(nf);
 		textField_plus.setText("0");
@@ -901,7 +901,7 @@ public class MyFrame extends JFrame {
 						logger.info("界面[原始数据接受]:" + mess);
 						String value = "";
 						// ascii需要处理，这里是取反的
-						if (isOX) {
+						if (getCharset()) {
 							value = mess;
 							logger.info("界面[转换为十六进制]:" + value);
 						} else {
@@ -921,8 +921,7 @@ public class MyFrame extends JFrame {
 								textField_ReplyFromDevice.setText(finalValue);
 								textField_ReplyFromDevice.repaint();
 								logger.info("界面[重绘]:textField_ReplyFromDevice:" + finalValue);
-								otherButton.setEnabled(true);
-								ascButton.setEnabled(true);
+
 							}
 						});
 
@@ -936,10 +935,11 @@ public class MyFrame extends JFrame {
 					logger.info("界面[发送]:" + text);
 					if (isOX) {
 						crcb.setOrderMessage(StringTransformUtil.hexToBytes(StringTransformUtil.replaceBlank(text)));
+						// 是否是16进制：是
 						crcb.setCharset(true);
 						logger.info("界面[发送十六进制]:" + crcb.getOrderMessage());
 					} else {
-						// 先转换成16进制
+						// 是否是16进制：否
 						crcb.setCharset(false);
 						try {
 							char c = '\r';
@@ -953,6 +953,16 @@ public class MyFrame extends JFrame {
 					crcb.setPriority(0);
 					try {
 						SerialPortFactory.sendMessage(crcb);
+					
+						SwingUtilities.invokeLater(new Runnable() {
+							@Override
+							public void run() {
+								// 起用按钮
+								otherButton.setEnabled(true);
+								ascButton.setEnabled(true);
+							}
+						});
+
 					} catch (Exception e1) {
 						// TODO Auto-generated catch block
 						logger.error(e1);
@@ -1874,9 +1884,9 @@ public class MyFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// 第一个参数为程序名，第二个参数为程序打开的内容路径
-				File directory = new File("");//设定为当前文件夹 
+				File directory = new File("");// 设定为当前文件夹
 				String newPath = "";
-				//获取绝对路径 
+				// 获取绝对路径
 				newPath = directory.getAbsolutePath();
 				newPath = newPath + "\\AOTF\\AOTF-RF1\\AOTFController.exe";
 				logger.info("打开AOTFController, 路径为：" + newPath);
@@ -1895,9 +1905,9 @@ public class MyFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// 第一个参数为程序名，第二个参数为程序打开的内容路径
-				File directory = new File("");//设定为当前文件夹 
+				File directory = new File("");// 设定为当前文件夹
 				String newPath = "";
-				//获取绝对路径 
+				// 获取绝对路径
 				newPath = directory.getAbsolutePath();
 				newPath = newPath + "\\AOTF\\AOTF-RF2\\AOTFController.exe";
 				logger.info("打开AOTFController, 路径为：" + newPath);
@@ -1987,7 +1997,7 @@ public class MyFrame extends JFrame {
 							return;
 						}
 						// 消息，后面会使用
-						
+
 						String mess = objects[0].toString();
 						logger.info("界面[接受：power set]:" + mess);
 						final String result = mess.substring(10, 12);
@@ -2009,7 +2019,7 @@ public class MyFrame extends JFrame {
 				// 握手关键字
 				String text = textField_outputPower.getText();
 				Integer value = Integer.valueOf(text);
-				String hex = getHexString(value,2);
+				String hex = getHexString(value, 2);
 				String macOrder = "55aa010801" + hex + "f00d";
 				crcb.setOrderMessage(StringTransformUtil.hexToBytes(macOrder));
 				crcb.setPriority(0);
@@ -2057,7 +2067,7 @@ public class MyFrame extends JFrame {
 							return;
 						}
 						// 消息，后面会使用
-						
+
 						String mess = objects[0].toString();
 						logger.info("界面[接受：plus]:" + mess);
 						final String result = mess.substring(10, 14);
@@ -2066,7 +2076,7 @@ public class MyFrame extends JFrame {
 						SwingUtilities.invokeLater(new Runnable() {
 							@Override
 							public void run() {
-								String result2 = Integer.valueOf(result, 16).toString()+"00";
+								String result2 = Integer.valueOf(result, 16).toString() + "00";
 								logger.info("界面[接受:plus]:准备刷新" + result2);
 								TableModel tablemodel = table_OperParam.getModel();
 								tablemodel.setValueAt(result2, 6, 1);
@@ -2078,14 +2088,14 @@ public class MyFrame extends JFrame {
 				};
 				// 握手关键字
 				String text = textField_plus.getText();
-				logger.info("[界面发送 plus]源命令："+text);
+				logger.info("[界面发送 plus]源命令：" + text);
 				Integer value = Integer.valueOf(text);
 
-				String hex = getHexString(value/min,4);
-	
-				//55 aa 01 03 01 xx xx 0d
+				String hex = getHexString(value / min, 4);
+
+				// 55 aa 01 03 01 xx xx 0d
 				String macOrder = "55aa010301" + hex + "0d";
-				logger.info("[界面发送 plus]发送命令："+macOrder);
+				logger.info("[界面发送 plus]发送命令：" + macOrder);
 				crcb.setOrderMessage(StringTransformUtil.hexToBytes(macOrder));
 				crcb.setPriority(0);
 				try {
@@ -2173,10 +2183,12 @@ public class MyFrame extends JFrame {
 
 		return;
 	}
-	
+
 	/**
 	 * 得到十六进制数的静态方法
-	 * @param decimalNumber 十进制数
+	 * 
+	 * @param decimalNumber
+	 *            十进制数
 	 * @return 四位十六进制数字符串
 	 */
 	String getHexString(int decimalNumber, int length) {
