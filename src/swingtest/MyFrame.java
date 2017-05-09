@@ -774,7 +774,7 @@ public class MyFrame extends JFrame {
 		textField_plus.setText("0");
 		textField_plus.setHorizontalAlignment(SwingConstants.RIGHT);
 		textField_plus.setColumns(10);
-		textField_plus.setBounds(324, 28, 55, 21);
+		textField_plus.setBounds(324, 28, 45, 21);
 		panel_PRR_EM.add(textField_plus);
 
 		textField_plus.addKeyListener(new KeyListener() {
@@ -806,13 +806,13 @@ public class MyFrame extends JFrame {
 		});
 
 		JLabel lblKhz = new JLabel((Icon) null);
-		lblKhz.setText("kHz");
+		lblKhz.setText("100kHz");
 		lblKhz.setHorizontalAlignment(SwingConstants.LEFT);
-		lblKhz.setBounds(382, 28, 40, 20);
+		lblKhz.setBounds(368, 28, 44, 20);
 		panel_PRR_EM.add(lblKhz);
 
 		btnPulseSend = new JButton("send");
-		btnPulseSend.setBounds(408, 28, 60, 22);
+		btnPulseSend.setBounds(412, 28, 60, 22);
 		panel_PRR_EM.add(btnPulseSend);
 
 		bindPulseSendEvent();
@@ -1495,7 +1495,7 @@ public class MyFrame extends JFrame {
 		table_OperParam.setModel(new DefaultTableModel(
 				new Object[][] { { "Average Power", "0", "%" }, { "Max Average Power", "1.6", "W" },
 						{ "Pulse Duration", "-", "ns" }, { "Pulse Energy", "0", "mJ" }, { "Peak Power", "-", "kW" },
-						{ "Set Power", "0", "%" }, { "Pulse Repetition Rate", "1.5", "kHz" }, },
+						{ "Set Power", "0", "%" }, { "Pulse Repetition Rate", "1.5", "100kHz" }, },
 				new String[] { "", "", "" }));
 		table_OperParam.getColumnModel().getColumn(0).setResizable(false);
 		table_OperParam.getColumnModel().getColumn(0).setPreferredWidth(136);
@@ -1598,7 +1598,7 @@ public class MyFrame extends JFrame {
 		table_OperParam.setModel(new DefaultTableModel(
 				new Object[][] { { "Average Power", "0", "%" }, { "Max Average Power", "1.6", "W" },
 						{ "Pulse Duration", "-", "ns" }, { "Pulse Energy", "0", "mJ" }, { "Peak Power", "-", "kW" },
-						{ "Set Power", "0", "%" }, { "Pulse Repetition Rate", "1.5", "kHz" }, },
+						{ "Set Power", "0", "%" }, { "Pulse Repetition Rate", "1.5", "100kHz" }, },
 				new String[] { "", "", "" }));
 		table_OperParam.getColumnModel().getColumn(0).setResizable(false);
 		table_OperParam.getColumnModel().getColumn(0).setPreferredWidth(136);
@@ -1885,13 +1885,13 @@ public class MyFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				// 第一个参数为程序名，第二个参数为程序打开的内容路径
 				File directory = new File("");// 设定为当前文件夹
-				String newPath = "";
 				// 获取绝对路径
-				newPath = directory.getAbsolutePath();
-				newPath = newPath + "\\AOTF\\AOTF-RF1\\AOTFController.exe";
-				logger.info("打开AOTFController, 路径为：" + newPath);
+				String newPath = directory.getAbsolutePath();
+				String aotf = newPath + "\\AOTF\\AOTF-RF1\\AOTFController.exe";
+				String ini = newPath + "\\AOTF\\AOTF-RF1\\Calibrationparameters.ini";
+				logger.info("打开AOTFController, 路径为：" + aotf);
 				try {
-					Runtime.getRuntime().exec(newPath);
+					Runtime.getRuntime().exec(new String[]{aotf, ini});
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -1906,13 +1906,13 @@ public class MyFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				// 第一个参数为程序名，第二个参数为程序打开的内容路径
 				File directory = new File("");// 设定为当前文件夹
-				String newPath = "";
 				// 获取绝对路径
-				newPath = directory.getAbsolutePath();
-				newPath = newPath + "\\AOTF\\AOTF-RF2\\AOTFController.exe";
+				String newPath = directory.getAbsolutePath();
+				String aotf = newPath + "\\AOTF\\AOTF-RF2\\AOTFController.exe";
+				String ini = newPath + "\\AOTF\\AOTF-RF2\\Calibrationparameters.ini";
 				logger.info("打开AOTFController, 路径为：" + newPath);
 				try {
-					Runtime.getRuntime().exec(newPath);
+					Runtime.getRuntime().exec(new String[]{aotf, ini});
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
