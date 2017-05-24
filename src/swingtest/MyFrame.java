@@ -1919,7 +1919,7 @@ public class MyFrame extends JFrame {
 				addURL(file);
 				logger.info("打开AOTFController, 路径为：" + aotf);
 				try {
-					Runtime.getRuntime().exec(new String[]{aotf, ini});
+					Runtime.getRuntime().exec(aotf);
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -1942,7 +1942,7 @@ public class MyFrame extends JFrame {
 				addURL(file);
 				logger.info("打开AOTFController, 路径为：" + newPath);
 				try {
-					Runtime.getRuntime().exec(new String[]{aotf, ini});
+					Runtime.getRuntime().exec(aotf);
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
