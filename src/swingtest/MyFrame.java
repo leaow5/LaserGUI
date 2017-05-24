@@ -16,6 +16,9 @@ import java.awt.event.WindowListener;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.Timer;
@@ -147,6 +150,10 @@ public class MyFrame extends JFrame {
 	private volatile RunTimeContext context = new RunTimeContext();
 	// 定时器
 	private Timer timer;
+	
+	private static Method addURL = initAddMethod();
+	 
+	private static URLClassLoader classloader = (URLClassLoader) ClassLoader.getSystemClassLoader();
 
 	/**
 	 * Launch the application.
@@ -163,6 +170,35 @@ public class MyFrame extends JFrame {
 			}
 		});
 	}
+	/** 
+     * 初始化addUrl 方法.
+     * @return 可访问addUrl方法的Method对象
+     */
+    private static Method initAddMethod() {
+        try {
+            Method add = URLClassLoader.class.getDeclaredMethod("addURL", new Class[] { URL.class });
+            add.setAccessible(true);
+            return add;
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
+    /**
+     * 通过filepath加载文件到classpath。
+     * @param filePath 文件路径
+     * @return URL
+     * @throws Exception 异常
+     */
+    private static void addURL(File file) {
+        try {
+            addURL.invoke(classloader, new Object[] { file.toURI().toURL() });
+        }
+        catch (Exception e) {
+        }
+    }
+ 
 
 	/**
 	 * Create the frame. 主入口.
@@ -1889,6 +1925,8 @@ public class MyFrame extends JFrame {
 				String newPath = directory.getAbsolutePath();
 				String aotf = newPath + "\\AOTF\\AOTF-RF1\\AOTFController.exe";
 				String ini = newPath + "\\AOTF\\AOTF-RF1\\Calibrationparameters.ini";
+				File file = new File(ini);
+				addURL(file);
 				logger.info("打开AOTFController, 路径为：" + aotf);
 				try {
 					Runtime.getRuntime().exec(new String[]{aotf, ini});
@@ -1910,6 +1948,8 @@ public class MyFrame extends JFrame {
 				String newPath = directory.getAbsolutePath();
 				String aotf = newPath + "\\AOTF\\AOTF-RF2\\AOTFController.exe";
 				String ini = newPath + "\\AOTF\\AOTF-RF2\\Calibrationparameters.ini";
+				File file = new File(ini);
+				addURL(file);
 				logger.info("打开AOTFController, 路径为：" + newPath);
 				try {
 					Runtime.getRuntime().exec(new String[]{aotf, ini});
