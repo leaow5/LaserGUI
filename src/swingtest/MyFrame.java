@@ -905,8 +905,8 @@ public class MyFrame extends JFrame {
 					public void run() {
 						// 禁用按钮
 						btnRS232_Send.setEnabled(false);
-						otherButton.setEnabled(false);
-						ascButton.setEnabled(false);
+//						otherButton.setEnabled(false);
+//						ascButton.setEnabled(false);
 						try {
 							Thread.sleep(2000);
 							btnRS232_Send.setEnabled(true);
@@ -989,16 +989,6 @@ public class MyFrame extends JFrame {
 					crcb.setPriority(0);
 					try {
 						SerialPortFactory.sendMessage(crcb);
-					
-						SwingUtilities.invokeLater(new Runnable() {
-							@Override
-							public void run() {
-								// 起用按钮
-								otherButton.setEnabled(true);
-								ascButton.setEnabled(true);
-							}
-						});
-
 					} catch (Exception e1) {
 						// TODO Auto-generated catch block
 						logger.error(e1);
@@ -2097,8 +2087,8 @@ public class MyFrame extends JFrame {
 					}
 				});
 				// TODO 发送PLUS 命令
-				PropertiesUtil props = PropertiesUtil.getDefaultOrderPro();
-				final Integer min = 100;
+//				PropertiesUtil props = PropertiesUtil.getDefaultOrderPro();
+//				final Integer min = 100;
 				ComponentRepaintCallBack crcb = new ComponentRepaintCallBack(table_OperParam) {
 					@Override
 					public void execute(Object... objects) {
@@ -2131,7 +2121,7 @@ public class MyFrame extends JFrame {
 				logger.info("[界面发送 plus]源命令：" + text);
 				Integer value = Integer.valueOf(text);
 
-				String hex = getHexString(value / min, 4);
+				String hex = getHexString(value, 4);
 
 				// 55 aa 01 03 01 xx xx 0d
 				String macOrder = "55aa010301" + hex + "0d";
