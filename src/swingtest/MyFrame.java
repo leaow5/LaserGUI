@@ -63,6 +63,7 @@ import org.jvnet.substance.skin.SubstanceBusinessBlueSteelLookAndFeel;
 
 import com.spark.core.CommandLineCallBack;
 import com.spark.core.ComponentRepaintCallBack;
+import com.spark.core.ReceiveMessage;
 import com.spark.core.SerialPortFactory;
 import com.spark.utils.StringTransformUtil;
 import com.spark.utils.WinEnvUtils;
@@ -150,9 +151,9 @@ public class MyFrame extends JFrame {
 	private volatile RunTimeContext context = new RunTimeContext();
 	// 定时器
 	private Timer timer;
-	
+
 	private static Method addURL = initAddMethod();
-	 
+
 	private static URLClassLoader classloader = (URLClassLoader) ClassLoader.getSystemClassLoader();
 
 	/**
@@ -170,35 +171,37 @@ public class MyFrame extends JFrame {
 			}
 		});
 	}
-	/** 
-     * 初始化addUrl 方法.
-     * @return 可访问addUrl方法的Method对象
-     */
-    private static Method initAddMethod() {
-        try {
-            Method add = URLClassLoader.class.getDeclaredMethod("addURL", new Class[] { URL.class });
-            add.setAccessible(true);
-            return add;
-        }
-        catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-    
-    /**
-     * 通过filepath加载文件到classpath。
-     * @param filePath 文件路径
-     * @return URL
-     * @throws Exception 异常
-     */
-    private static void addURL(File file) {
-        try {
-            addURL.invoke(classloader, new Object[] { file.toURI().toURL() });
-        }
-        catch (Exception e) {
-        }
-    }
- 
+
+	/**
+	 * 初始化addUrl 方法.
+	 * 
+	 * @return 可访问addUrl方法的Method对象
+	 */
+	private static Method initAddMethod() {
+		try {
+			Method add = URLClassLoader.class.getDeclaredMethod("addURL", new Class[] { URL.class });
+			add.setAccessible(true);
+			return add;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	/**
+	 * 通过filepath加载文件到classpath。
+	 * 
+	 * @param filePath
+	 *            文件路径
+	 * @return URL
+	 * @throws Exception
+	 *             异常
+	 */
+	private static void addURL(File file) {
+		try {
+			addURL.invoke(classloader, new Object[] { file.toURI().toURL() });
+		} catch (Exception e) {
+		}
+	}
 
 	/**
 	 * Create the frame. 主入口.
@@ -338,9 +341,9 @@ public class MyFrame extends JFrame {
 				// 消息，后面会使用
 				SwingUtilities.invokeLater(new Runnable() {
 					public void run() {
-						String mess = objects[0].toString();
-						int length = mess.length();
-						String infoBefore = mess.substring(10, length - 2);
+						ReceiveMessage mess = (ReceiveMessage) objects[0];
+						int length = mess.getMessage().length();
+						String infoBefore = mess.getMessage().substring(10, length - 2);
 						String inforAfter = "";
 						try {
 							inforAfter = StringTransformUtil.hexStrToAsciiStr(infoBefore);
@@ -350,26 +353,19 @@ public class MyFrame extends JFrame {
 						logger.info("界面[接受]:" + inforAfter);
 						String[] infos = inforAfter.split("\\\\");
 						// 目标控件
-						logger.info("界面[接受]:堵塞判断A");
 						JPanel target = (JPanel) getComponent();
 						if (target != null && infos.length > 0) {
-							logger.info("界面[接受]:堵塞判断B");
 							((TitledBorder) target.getBorder()).setTitle(infos[0]);
-							logger.info("界面[接受]:堵塞判断C");
 							target.repaint();
 						}
 						// 右下角窗口
-						logger.info("界面[接受]:堵塞判断D");
 						TableModel dataModel = table_Info.getModel();
 						// 通用的Jtable处理方式，其他的也是如此
-						logger.info("界面[接受]:堵塞判断E");
 						int tableLength = dataModel.getRowCount();
 						// 第一行第二列内容,例子如下
-						logger.info("界面[接受]:堵塞判断F");
 						for (int i = 0; i < tableLength; i++) {
 							dataModel.setValueAt(infos[i], i, 1);
 						}
-						logger.info("界面[接受]:堵塞判断G");
 						logger.info("界面[重绘]:table_Info:" + inforAfter);
 						table_Info.repaint();
 						logger.info("界面[重绘]:frame:" + inforAfter);
@@ -589,14 +585,15 @@ public class MyFrame extends JFrame {
 								return;
 							}
 							// 消息，后面会使用
-							final String mess = objects[0].toString();
+							// final String mess = objects[0].toString();
+							final ReceiveMessage mess = (ReceiveMessage) objects[0];
 							logger.info("[命令]接受：" + mess);
 							// 目标控件
 							SwingUtilities.invokeLater(new Runnable() {
 								@Override
 								public void run() {
 									logger.info("[命令]接受：" + mess + " OFF--》green,ON-->dark");
-									if (mess.substring(10, 14).equalsIgnoreCase("b04c")) {
+									if (mess.getMessage().substring(10, 14).equalsIgnoreCase("b04c")) {
 										label_LaserON.setIcon(icon_dark);
 										label_LaserOFF.setIcon(icon_green);
 									} else {
@@ -633,14 +630,15 @@ public class MyFrame extends JFrame {
 								return;
 							}
 							// 消息，后面会使用
-							final String mess = objects[0].toString();
+							// final String mess = objects[0].toString();
+							final ReceiveMessage mess = (ReceiveMessage) objects[0];
 							logger.info("[命令]接受：" + mess);
 							// 结束
 							SwingUtilities.invokeLater(new Runnable() {
 								@Override
 								public void run() {
 									logger.info("[命令]接受：" + mess + " ON--》green,OFF-->dark");
-									if (mess.substring(10, 14).equalsIgnoreCase("b04c")) {
+									if (mess.getMessage().substring(10, 14).equalsIgnoreCase("b04c")) {
 										label_LaserON.setIcon(icon_dark);
 										label_LaserOFF.setIcon(icon_green);
 									} else {
@@ -905,8 +903,8 @@ public class MyFrame extends JFrame {
 					public void run() {
 						// 禁用按钮
 						btnRS232_Send.setEnabled(false);
-//						otherButton.setEnabled(false);
-//						ascButton.setEnabled(false);
+						// otherButton.setEnabled(false);
+						// ascButton.setEnabled(false);
 						try {
 							Thread.sleep(2000);
 							btnRS232_Send.setEnabled(true);
@@ -933,16 +931,17 @@ public class MyFrame extends JFrame {
 							return;
 						}
 						// 消息，后面会使用
-						String mess = objects[0].toString();
+						// String mess = objects[0].toString();
+						final ReceiveMessage mess = (ReceiveMessage) objects[0];
 						logger.info("界面[原始数据接受]:" + mess);
 						String value = "";
 						// ascii需要处理，这里是取反的
 						if (getCharset()) {
-							value = mess;
+							value = mess.getMessage();
 							logger.info("界面[转换为十六进制]:" + value);
 						} else {
 							try {
-								value = StringTransformUtil.hexStrToAsciiStr(mess);
+								value = StringTransformUtil.hexStrToAsciiStr(mess.getMessage());
 								logger.info("界面[转换为ascii]:" + value);
 							} catch (Exception e) {
 								e.printStackTrace();
@@ -2028,16 +2027,17 @@ public class MyFrame extends JFrame {
 						}
 						// 消息，后面会使用
 
-						String mess = objects[0].toString();
-						logger.info("界面[接受：power set]:" + mess);
-						final String result = mess.substring(10, 12);
+						// String mess = objects[0].toString();
+						final ReceiveMessage mess = (ReceiveMessage) objects[0];
+						logger.info("[界面][接受：power set]:" + mess);
+						final String result = mess.getMessage().substring(10, 12);
 						// TODO 对返回的数据转换成数字
 						// 目标控件
 						SwingUtilities.invokeLater(new Runnable() {
 							@Override
 							public void run() {
 								String result2 = Integer.valueOf(result, 16).toString();
-								logger.info("界面[接受:power set]:准备刷新" + result2);
+								logger.info("[界面][接受:power set][刷新]" + result2);
 								TableModel tablemodel = table_OperParam.getModel();
 								tablemodel.setValueAt(result2, 5, 1);
 								table_OperParam.repaint();
@@ -2087,8 +2087,8 @@ public class MyFrame extends JFrame {
 					}
 				});
 				// TODO 发送PLUS 命令
-//				PropertiesUtil props = PropertiesUtil.getDefaultOrderPro();
-//				final Integer min = 100;
+				// PropertiesUtil props = PropertiesUtil.getDefaultOrderPro();
+				// final Integer min = 100;
 				ComponentRepaintCallBack crcb = new ComponentRepaintCallBack(table_OperParam) {
 					@Override
 					public void execute(Object... objects) {
@@ -2098,9 +2098,10 @@ public class MyFrame extends JFrame {
 						}
 						// 消息，后面会使用
 
-						String mess = objects[0].toString();
+						// String mess = objects[0].toString();
+						final ReceiveMessage mess = (ReceiveMessage) objects[0];
 						logger.info("界面[接受：plus]:" + mess);
-						final String result = mess.substring(10, 14);
+						final String result = mess.getMessage().substring(10, 14);
 						// TODO 对返回的数据转换成数字
 						// 目标控件
 						SwingUtilities.invokeLater(new Runnable() {
@@ -2172,9 +2173,9 @@ public class MyFrame extends JFrame {
 
 							@Override
 							public void run() {
-								String mess = objects[0].toString();
-								int length = mess.length();
-								String infoBefore = mess.substring(10, length - 2);
+								ReceiveMessage mess = (ReceiveMessage) objects[0];
+								int length = mess.getMessage().length();
+								String infoBefore = mess.getMessage().substring(10, length - 2);
 								String inforAfter = "";
 								try {
 									inforAfter = StringTransformUtil.hexStrToAsciiStr(infoBefore);

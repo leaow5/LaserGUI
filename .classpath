@@ -14,6 +14,8 @@
 	<classpathentry kind="lib" path="lib/log4j-api-2.5.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-core-2.5.jar"/>
 	<classpathentry kind="lib" path="lib/RXTXcomm.jar"/>
+	<classpathentry kind="lib" path="lib/fastjson-1.2.9-sources.jar"/>
+	<classpathentry kind="lib" path="lib/fastjson-1.2.9.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/SparkConnect"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
