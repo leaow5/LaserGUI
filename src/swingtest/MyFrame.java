@@ -61,6 +61,7 @@ import org.jvnet.substance.api.SubstanceSkin;
 import org.jvnet.substance.skin.BusinessBlueSteelSkin;
 import org.jvnet.substance.skin.SubstanceBusinessBlueSteelLookAndFeel;
 
+import com.alibaba.fastjson.JSON;
 import com.spark.core.CommandLineCallBack;
 import com.spark.core.ComponentRepaintCallBack;
 import com.spark.core.ReceiveMessage;
@@ -350,7 +351,7 @@ public class MyFrame extends JFrame {
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
-						logger.info("界面[接受]:" + inforAfter);
+						logger.info("[界面][握手][接受]:" + inforAfter);
 						String[] infos = inforAfter.split("\\\\");
 						// 目标控件
 						JPanel target = (JPanel) getComponent();
@@ -366,9 +367,8 @@ public class MyFrame extends JFrame {
 						for (int i = 0; i < tableLength; i++) {
 							dataModel.setValueAt(infos[i], i, 1);
 						}
-						logger.info("界面[重绘]:table_Info:" + inforAfter);
 						table_Info.repaint();
-						logger.info("界面[重绘]:frame:" + inforAfter);
+						logger.info("[界面][握手][重绘]:frame:" + inforAfter);
 						frame.repaint();
 					}
 				});
@@ -376,7 +376,7 @@ public class MyFrame extends JFrame {
 		};
 		// 握手关键字
 		String macOrder = props.getProperty("HANDSHAKE_ORDER");
-		logger.info("界面[发送]:" + macOrder);
+		logger.info("[界面][握手][发送]:" + macOrder);
 		crcb.setOrderMessage(StringTransformUtil.hexToBytes(macOrder));
 		crcb.setPriority(0);
 		try {
@@ -587,16 +587,16 @@ public class MyFrame extends JFrame {
 							// 消息，后面会使用
 							// final String mess = objects[0].toString();
 							final ReceiveMessage mess = (ReceiveMessage) objects[0];
-							logger.info("[命令]接受：" + mess);
 							// 目标控件
 							SwingUtilities.invokeLater(new Runnable() {
 								@Override
 								public void run() {
-									logger.info("[命令]接受：" + mess + " OFF--》green,ON-->dark");
 									if (mess.getMessage().substring(10, 14).equalsIgnoreCase("b04c")) {
+										logger.info("[界面][激光]接受：" + JSON.toJSONString(mess) + " OFF--》green,ON-->dark");
 										label_LaserON.setIcon(icon_dark);
 										label_LaserOFF.setIcon(icon_green);
 									} else {
+										logger.info("[界面][激光]接受：" + JSON.toJSONString(mess) + " OFF--》dark,ON-->green");
 										label_LaserON.setIcon(icon_green);
 										label_LaserOFF.setIcon(icon_dark);
 									}
@@ -632,16 +632,16 @@ public class MyFrame extends JFrame {
 							// 消息，后面会使用
 							// final String mess = objects[0].toString();
 							final ReceiveMessage mess = (ReceiveMessage) objects[0];
-							logger.info("[命令]接受：" + mess);
 							// 结束
 							SwingUtilities.invokeLater(new Runnable() {
 								@Override
 								public void run() {
-									logger.info("[命令]接受：" + mess + " ON--》green,OFF-->dark");
+									logger.info("[界面][激光]接受：" + JSON.toJSONString(mess) + " OFF--》green,ON-->dark");
 									if (mess.getMessage().substring(10, 14).equalsIgnoreCase("b04c")) {
 										label_LaserON.setIcon(icon_dark);
 										label_LaserOFF.setIcon(icon_green);
 									} else {
+										logger.info("[界面][激光]接受：" + JSON.toJSONString(mess) + " OFF--》dark,ON-->green");
 										label_LaserON.setIcon(icon_green);
 										label_LaserOFF.setIcon(icon_dark);
 									}
@@ -913,9 +913,6 @@ public class MyFrame extends JFrame {
 						}
 					}
 				});
-
-				// TODO 将接受到的命令展示到textField_ReplyFromDevice
-
 				final boolean isOX = otherButton.isSelected();
 				if (isOX) {
 					logger.info("[界面][自定义命令][编码]:十六进制");
@@ -931,20 +928,20 @@ public class MyFrame extends JFrame {
 							return;
 						}
 						// 消息，后面会使用
-						// String mess = objects[0].toString();
 						final ReceiveMessage mess = (ReceiveMessage) objects[0];
-						logger.info("界面[原始数据接受]:" + mess);
+						logger.info("[界面][自定义命令][数据接受]:" + JSON.toJSONString(mess));
 						String value = "";
 						// ascii需要处理，这里是取反的
 						if (getCharset()) {
 							value = mess.getMessage();
-							logger.info("界面[转换为十六进制]:" + value);
+							logger.info("[界面][自定义命令][转换为十六进制]:" + value);
 						} else {
 							try {
 								value = StringTransformUtil.hexStrToAsciiStr(mess.getMessage());
-								logger.info("界面[转换为ascii]:" + value);
+								logger.info("[界面][自定义命令][转换为ascii]:" + value);
 							} catch (Exception e) {
 								e.printStackTrace();
+								logger.error(e);
 							}
 						}
 						// 减去最后2位，因为可能是0D
@@ -955,7 +952,7 @@ public class MyFrame extends JFrame {
 								// 目标控件
 								textField_ReplyFromDevice.setText(finalValue);
 								textField_ReplyFromDevice.repaint();
-								logger.info("界面[重绘]:textField_ReplyFromDevice:" + finalValue);
+								logger.info("[界面][自定义命令][重绘]:textField_ReplyFromDevice:" + finalValue);
 
 							}
 						});
@@ -967,12 +964,12 @@ public class MyFrame extends JFrame {
 				String text = textField_RS232_Send.getText();
 
 				if (!StringUtils.isEmpty(text)) {
-					logger.info("界面[发送]:" + text);
+					logger.info("[界面][自定义命令][发送]:" + text);
 					if (isOX) {
 						crcb.setOrderMessage(StringTransformUtil.hexToBytes(StringTransformUtil.replaceBlank(text)));
 						// 是否是16进制：是
 						crcb.setCharset(true);
-						logger.info("界面[发送十六进制]:" + crcb.getOrderMessage());
+						logger.info("[界面][自定义命令][发送十六进制]:" + crcb.getOrderMessage());
 					} else {
 						// 是否是16进制：否
 						crcb.setCharset(false);
@@ -983,7 +980,7 @@ public class MyFrame extends JFrame {
 							logger.error(e1);
 							e1.printStackTrace();
 						}
-						logger.info("界面[发送asc]:" + crcb.getOrderMessage());
+						logger.info("[界面][自定义命令][发送asc]:" + crcb.getOrderMessage());
 					}
 					crcb.setPriority(0);
 					try {
@@ -1795,6 +1792,7 @@ public class MyFrame extends JFrame {
 							btnConnect.setEnabled(true);
 						} catch (InterruptedException e) {
 							e.printStackTrace();
+							logger.error(e);
 						}
 					}
 				});
@@ -1920,7 +1918,7 @@ public class MyFrame extends JFrame {
 				try {
 					Runtime.getRuntime().exec(aotf);
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
+					logger.error(e);
 					e1.printStackTrace();
 				}
 
@@ -1943,7 +1941,7 @@ public class MyFrame extends JFrame {
 				try {
 					Runtime.getRuntime().exec(aotf);
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
+					logger.error(e1);
 					e1.printStackTrace();
 				}
 
@@ -1966,6 +1964,7 @@ public class MyFrame extends JFrame {
 							frame.setVisible(true);
 						} catch (Exception e) {
 							e.printStackTrace();
+							logger.error(e);
 						}
 					}
 				});
@@ -1988,6 +1987,7 @@ public class MyFrame extends JFrame {
 							frame.setVisible(true);
 						} catch (Exception e) {
 							e.printStackTrace();
+							logger.error(e);
 						}
 					}
 				});
@@ -2013,6 +2013,7 @@ public class MyFrame extends JFrame {
 							btnOutputSend.setEnabled(true);
 						} catch (InterruptedException e) {
 							e.printStackTrace();
+							logger.error(e);
 						}
 					}
 				});
@@ -2082,6 +2083,7 @@ public class MyFrame extends JFrame {
 							Thread.sleep(2000);
 							btnPulseSend.setEnabled(true);
 						} catch (InterruptedException e) {
+							logger.error(e);
 							e.printStackTrace();
 						}
 					}
@@ -2180,6 +2182,7 @@ public class MyFrame extends JFrame {
 								try {
 									inforAfter = StringTransformUtil.hexStrToAsciiStr(infoBefore);
 								} catch (Exception e) {
+									logger.error(e);
 									e.printStackTrace();
 								}
 								logger.info(inforAfter);
