@@ -2109,7 +2109,7 @@ public class MyFrame extends JFrame {
 						SwingUtilities.invokeLater(new Runnable() {
 							@Override
 							public void run() {
-								String result2 = Integer.valueOf(result, 16).toString() + "00";
+								String result2 = Integer.valueOf(result, 16).toString();
 								logger.info("界面[接受:plus]:准备刷新" + result2);
 								TableModel tablemodel = table_OperParam.getModel();
 								tablemodel.setValueAt(result2, 6, 1);
