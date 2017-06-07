@@ -1912,11 +1912,12 @@ public class MyFrame extends JFrame {
 				String newPath = directory.getAbsolutePath();
 				String aotf = newPath + "\\AOTF\\AOTF-RF1\\AOTFController.exe";
 				String ini = newPath + "\\AOTF\\AOTF-RF1\\Calibrationparameters.ini";
+				String dll = newPath + "\\AOTF\\AOTF-RF2\\AotfLibrary.dll";
 				File file = new File(ini);
 				addURL(file);
 				logger.info("打开AOTFController, 路径为：" + aotf);
 				try {
-					Runtime.getRuntime().exec(aotf);
+					Runtime.getRuntime().exec(new String[]{aotf, dll, ini});
 				} catch (IOException e1) {
 					logger.error(e);
 					e1.printStackTrace();
@@ -1935,11 +1936,12 @@ public class MyFrame extends JFrame {
 				String newPath = directory.getAbsolutePath();
 				String aotf = newPath + "\\AOTF\\AOTF-RF2\\AOTFController.exe";
 				String ini = newPath + "\\AOTF\\AOTF-RF2\\Calibrationparameters.ini";
+				String dll = newPath + "\\AOTF\\AOTF-RF2\\AotfLibrary.dll";
 				File file = new File(ini);
 				addURL(file);
 				logger.info("打开AOTFController, 路径为：" + newPath);
 				try {
-					Runtime.getRuntime().exec(aotf);
+					Runtime.getRuntime().exec(new String[]{aotf, dll, ini});
 				} catch (IOException e1) {
 					logger.error(e1);
 					e1.printStackTrace();
