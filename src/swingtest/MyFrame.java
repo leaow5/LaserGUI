@@ -979,6 +979,7 @@ public class MyFrame extends JFrame {
 							String n="\n";
 							if(text.endsWith("\r\n")){
 								finalText=text.substring(0,text.length()-n.length());
+								logger.info("[界面][自定义命令][发送asc]截尾OA");
 							}else{
 								finalText= text;
 							}
