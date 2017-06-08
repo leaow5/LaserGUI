@@ -962,6 +962,7 @@ public class MyFrame extends JFrame {
 				};
 				// 自定义命令发送
 				String text = textField_RS232_Send.getText();
+				String finalText= "";
 
 				if (!StringUtils.isEmpty(text)) {
 					logger.info("[界面][自定义命令][发送]:" + text);
@@ -974,8 +975,14 @@ public class MyFrame extends JFrame {
 						// 是否是16进制：否
 						crcb.setCharset(false);
 						try {
-							char c = '\r';
-							crcb.setOrderMessage(StringTransformUtil.asciiToBytes(text.trim() + c));
+							String c = "\r";
+							String n="\n";
+							if(text.endsWith("\r\n")){
+								finalText=text.substring(0,text.length()-n.length());
+							}else{
+								finalText= text;
+							}
+							crcb.setOrderMessage(StringTransformUtil.asciiToBytes(finalText));
 						} catch (UnsupportedEncodingException e1) {
 							logger.error(e1);
 							e1.printStackTrace();
