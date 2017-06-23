@@ -729,21 +729,21 @@ public class MyFrame extends JFrame {
 		panel_RS232_SR.add(panel_outputPower);
 
 		slider_outputPower = new JSlider(0, 100, 0);
-		slider_outputPower.setSnapToTicks(true);
-		slider_outputPower.setPaintTicks(true);
-		slider_outputPower.setPaintLabels(true);
-		slider_outputPower.setBackground(new Color(240, 255, 255));
-		slider_outputPower.setEnabled(false);
-		slider_outputPower.setMinorTickSpacing(1);
-		slider_outputPower.setMajorTickSpacing(20);
-		slider_outputPower.setBounds(10, 16, 300, 40);
-		panel_outputPower.add(slider_outputPower);
+//		slider_outputPower.setSnapToTicks(true);
+//		slider_outputPower.setPaintTicks(true);
+//		slider_outputPower.setPaintLabels(true);
+//		slider_outputPower.setBackground(new Color(240, 255, 255));
+//		slider_outputPower.setEnabled(false);
+//		slider_outputPower.setMinorTickSpacing(1);
+//		slider_outputPower.setMajorTickSpacing(20);
+//		slider_outputPower.setBounds(10, 16, 300, 40);
+//		panel_outputPower.add(slider_outputPower);
 
 		textField_outputPower = new JFormattedTextField(NumberFormat.getIntegerInstance());
 		textField_outputPower.setText("0");
 		textField_outputPower.setHorizontalAlignment(SwingConstants.RIGHT);
 		textField_outputPower.setColumns(10);
-		textField_outputPower.setBounds(330, 28, 55, 21);
+		textField_outputPower.setBounds(10, 28, 240, 21);
 		textField_outputPower.addKeyListener(new KeyListener() {
 			@Override
 			public void keyTyped(KeyEvent e) {
@@ -772,13 +772,13 @@ public class MyFrame extends JFrame {
 		panel_outputPower.add(textField_outputPower);
 
 		JLabel label = new JLabel((Icon) null);
-		label.setText("%");
+		label.setText("%(scope: 0 ~ 100)");
 		label.setHorizontalAlignment(SwingConstants.LEFT);
-		label.setBounds(387, 28, 40, 20);
+		label.setBounds(255, 28, 140, 20);
 		panel_outputPower.add(label);
 
 		btnOutputSend = new JButton("send");
-		btnOutputSend.setBounds(405, 28, 60, 22);
+		btnOutputSend.setBounds(415, 28, 50, 22);
 		panel_outputPower.add(btnOutputSend);
 
 		bindOutputSendEvent();
@@ -792,15 +792,15 @@ public class MyFrame extends JFrame {
 		panel_RS232_SR.add(panel_PRR_EM);
 
 		slider_PRR_EM = new JSlider(0, 2000, 100);
-		slider_PRR_EM.setBackground(new Color(240, 255, 255));
-		slider_PRR_EM.setSnapToTicks(true);
-		slider_PRR_EM.setPaintTicks(true);
-		slider_PRR_EM.setPaintLabels(true);
-		slider_PRR_EM.setMinorTickSpacing(100);
-		slider_PRR_EM.setMajorTickSpacing(400);
-		slider_PRR_EM.setEnabled(false);
-		slider_PRR_EM.setBounds(10, 16, 300, 40);
-		panel_PRR_EM.add(slider_PRR_EM);
+//		slider_PRR_EM.setBackground(new Color(240, 255, 255));
+//		slider_PRR_EM.setSnapToTicks(true);
+//		slider_PRR_EM.setPaintTicks(true);
+//		slider_PRR_EM.setPaintLabels(true);
+//		slider_PRR_EM.setMinorTickSpacing(100);
+//		slider_PRR_EM.setMajorTickSpacing(400);
+//		slider_PRR_EM.setEnabled(false);
+//		slider_PRR_EM.setBounds(10, 16, 300, 40);
+//		panel_PRR_EM.add(slider_PRR_EM);
 
 		NumberFormat nf = NumberFormat.getIntegerInstance();
 		nf.setGroupingUsed(false);
@@ -808,7 +808,7 @@ public class MyFrame extends JFrame {
 		textField_plus.setText("0");
 		textField_plus.setHorizontalAlignment(SwingConstants.RIGHT);
 		textField_plus.setColumns(10);
-		textField_plus.setBounds(324, 28, 45, 21);
+		textField_plus.setBounds(10, 28, 240, 21);
 		panel_PRR_EM.add(textField_plus);
 
 		textField_plus.addKeyListener(new KeyListener() {
@@ -840,13 +840,13 @@ public class MyFrame extends JFrame {
 		});
 
 		JLabel lblKhz = new JLabel((Icon) null);
-		lblKhz.setText("100kHz");
+		lblKhz.setText("100kHz(scope: 0~2000)");
 		lblKhz.setHorizontalAlignment(SwingConstants.LEFT);
-		lblKhz.setBounds(368, 28, 44, 20);
+		lblKhz.setBounds(260, 28, 140, 20);
 		panel_PRR_EM.add(lblKhz);
 
 		btnPulseSend = new JButton("send");
-		btnPulseSend.setBounds(412, 28, 60, 22);
+		btnPulseSend.setBounds(415, 28, 50, 22);
 		panel_PRR_EM.add(btnPulseSend);
 
 		bindPulseSendEvent();
