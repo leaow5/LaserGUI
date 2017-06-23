@@ -84,7 +84,7 @@ public class MyFrame extends JFrame {
 	final ImageIcon icon_green = new ImageIcon("resource//green0.jpg");
 	final ImageIcon icon_green2 = new ImageIcon("resource//green1.jpg");
 	final ImageIcon icon_dark = new ImageIcon("resource//dark0.png");
-	final ImageIcon icon_red = new ImageIcon("resource//red_main.png");
+	final ImageIcon icon_red = new ImageIcon("resource//red_main2.png");
 	final ImageIcon icon_red2 = new ImageIcon("resource//red_dark.png");
 	public JPanel panel_RS232_SR; // panel Main
 	private JTextField textField_simmer;
@@ -840,7 +840,7 @@ public class MyFrame extends JFrame {
 		});
 
 		JLabel lblKhz = new JLabel((Icon) null);
-		lblKhz.setText("100kHz");
+		lblKhz.setText("10kHz");
 		lblKhz.setHorizontalAlignment(SwingConstants.LEFT);
 		lblKhz.setBounds(368, 28, 44, 20);
 		panel_PRR_EM.add(lblKhz);
@@ -931,10 +931,18 @@ public class MyFrame extends JFrame {
 						final ReceiveMessage mess = (ReceiveMessage) objects[0];
 						logger.info("[界面][自定义命令][数据接受]:" + JSON.toJSONString(mess));
 						String value = "";
+						final PropertiesUtil props = PropertiesUtil.getDefaultOrderPro();
 						// ascii需要处理，这里是取反的
 						if (getCharset()) {
 							value = mess.getMessage();
 							logger.info("[界面][自定义命令][转换为十六进制]:" + value);
+							// 异常
+							if (props.getProperty("SC-5_ERROR_QUERY_ORDER")
+									.equalsIgnoreCase(StringTransformUtil.bytesToHexString(this.getOrderMessage()))
+									&& !value.substring(10, 12).equals("00")) {
+								// 触发警告
+								invokeAlert();
+							}
 						} else {
 							try {
 								value = StringTransformUtil.hexStrToAsciiStr(mess.getMessage());
@@ -942,6 +950,12 @@ public class MyFrame extends JFrame {
 							} catch (Exception e) {
 								e.printStackTrace();
 								logger.error(e);
+							}
+							// 异常
+							if (StringTransformUtil.bytesToAsciiString(this.getOrderMessage()).contains("er?")
+									&& !value.substring(10, 12).equals("00")) {
+								// 触发警告
+								invokeAlert();
 							}
 						}
 						// 减去最后2位，因为可能是0D
@@ -956,17 +970,27 @@ public class MyFrame extends JFrame {
 
 							}
 						});
-
 					}
 
 				};
 				// 自定义命令发送
-				String text = textField_RS232_Send.getText();
-				String finalText= "";
+				final String text = textField_RS232_Send.getText();
+				String finalText = "";
 
 				if (!StringUtils.isEmpty(text)) {
-					logger.info("[界面][自定义命令][发送]:" + text);
+					try {
+						logger.info("[界面][自定义命令][发送]:"
+								+ StringTransformUtil.bytesToHexString(StringTransformUtil.asciiToBytes(text)));
+					} catch (UnsupportedEncodingException e2) {
+						logger.error(e2);
+						e2.printStackTrace();
+					}
+
 					if (isOX) {
+						if (!text.toUpperCase().endsWith("0D")) {
+							logger.info("[界面][自定义命令][无法发送HEX]没有0D");
+							return;
+						}
 						crcb.setOrderMessage(StringTransformUtil.hexToBytes(StringTransformUtil.replaceBlank(text)));
 						// 是否是16进制：是
 						crcb.setCharset(true);
@@ -976,12 +1000,17 @@ public class MyFrame extends JFrame {
 						crcb.setCharset(false);
 						try {
 							String c = "\r";
-							String n="\n";
-							if(text.endsWith("\r\n")){
-								finalText=text.substring(0,text.length()-n.length());
+							String n = "\n";
+							if (text.endsWith("\r\n")) {
+								finalText = text.substring(0, text.length() - n.length());
 								logger.info("[界面][自定义命令][发送asc]截尾OA");
-							}else{
-								finalText= text;
+							} else if (text.endsWith("\n")) {
+								finalText = text.substring(0, text.length() - n.length()) + c;
+								logger.info("[界面][自定义命令][发送asc]替换OA");
+							} else if (!text.endsWith("\r")) {
+								finalText = text;
+								logger.info("[界面][自定义命令][无法发送ASC]没有0D");
+								return;
 							}
 							crcb.setOrderMessage(StringTransformUtil.asciiToBytes(finalText));
 						} catch (UnsupportedEncodingException e1) {
@@ -1525,7 +1554,7 @@ public class MyFrame extends JFrame {
 		table_OperParam.setModel(new DefaultTableModel(
 				new Object[][] { { "Average Power", "0", "%" }, { "Max Average Power", "1.6", "W" },
 						{ "Pulse Duration", "-", "ns" }, { "Pulse Energy", "0", "mJ" }, { "Peak Power", "-", "kW" },
-						{ "Set Power", "0", "%" }, { "Pulse Repetition Rate", "1.5", "100kHz" }, },
+						{ "Set Power", "0", "%" }, { "Pulse Repetition Rate", "1.5", "10kHz" }, },
 				new String[] { "", "", "" }));
 		table_OperParam.getColumnModel().getColumn(0).setResizable(false);
 		table_OperParam.getColumnModel().getColumn(0).setPreferredWidth(136);
@@ -1628,7 +1657,7 @@ public class MyFrame extends JFrame {
 		table_OperParam.setModel(new DefaultTableModel(
 				new Object[][] { { "Average Power", "0", "%" }, { "Max Average Power", "1.6", "W" },
 						{ "Pulse Duration", "-", "ns" }, { "Pulse Energy", "0", "mJ" }, { "Peak Power", "-", "kW" },
-						{ "Set Power", "0", "%" }, { "Pulse Repetition Rate", "1.5", "100kHz" }, },
+						{ "Set Power", "0", "%" }, { "Pulse Repetition Rate", "1.5", "10kHz" }, },
 				new String[] { "", "", "" }));
 		table_OperParam.getColumnModel().getColumn(0).setResizable(false);
 		table_OperParam.getColumnModel().getColumn(0).setPreferredWidth(136);
@@ -1925,7 +1954,7 @@ public class MyFrame extends JFrame {
 				addURL(file);
 				logger.info("打开AOTFController, 路径为：" + aotf);
 				try {
-					Runtime.getRuntime().exec(new String[]{aotf, dll, ini});
+					Runtime.getRuntime().exec(new String[] { aotf, dll, ini });
 				} catch (IOException e1) {
 					logger.error(e);
 					e1.printStackTrace();
@@ -1949,7 +1978,7 @@ public class MyFrame extends JFrame {
 				addURL(file);
 				logger.info("打开AOTFController, 路径为：" + newPath);
 				try {
-					Runtime.getRuntime().exec(new String[]{aotf, dll, ini});
+					Runtime.getRuntime().exec(new String[] { aotf, dll, ini });
 				} catch (IOException e1) {
 					logger.error(e1);
 					e1.printStackTrace();
@@ -2226,6 +2255,23 @@ public class MyFrame extends JFrame {
 		}, 0, interval);
 
 		return;
+	}
+
+	/**
+	 * 开启警报.
+	 * 
+	 * @param arg0
+	 *            String
+	 */
+	void invokeAlert() {
+		// 目标控件
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				label_HBR.setIcon(icon_red);
+			}
+		});
+
 	}
 
 	/**
