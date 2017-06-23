@@ -826,8 +826,8 @@ public class MyFrame extends JFrame {
 					text = "0";
 				}
 				int val = Integer.valueOf(text);
-				if (val > 2000) {
-					val = 2000;
+				if (val > 20000) {
+					val = 20000;
 				}
 				textField_plus.setText(val + "");
 				slider_PRR_EM.setValue(val);
@@ -840,7 +840,7 @@ public class MyFrame extends JFrame {
 		});
 
 		JLabel lblKhz = new JLabel((Icon) null);
-		lblKhz.setText("100kHz(scope: 0~2000)");
+		lblKhz.setText("10kHz(scope: 0~20000)");
 		lblKhz.setHorizontalAlignment(SwingConstants.LEFT);
 		lblKhz.setBounds(260, 28, 140, 20);
 		panel_PRR_EM.add(lblKhz);
