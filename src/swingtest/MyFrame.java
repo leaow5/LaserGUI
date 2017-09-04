@@ -145,7 +145,7 @@ public class MyFrame extends JFrame {
 	// 端口号
 	private JComboBox<String> comboBox;
 	// 日志
-	private Logger logger = LogManager.getLogger(getClass().getName());
+	static private Logger logger = LogManager.getLogger(MyFrame.class.getName());
 	// 主界面对象
 	static private MyFrame frame;
 	// 暂时没有用上，以后区分型号用.
@@ -167,7 +167,7 @@ public class MyFrame extends JFrame {
 					frame = new MyFrame();
 					frame.setVisible(true);
 				} catch (Exception e) {
-					e.printStackTrace();
+					logger.error(e);
 				}
 			}
 		});
@@ -336,7 +336,7 @@ public class MyFrame extends JFrame {
 			public void execute(final Object... objects) {
 
 				if (objects.length == 0) {
-					logger.info("握手命令没有接受到消息。");
+					logger.info("[GUI][HANDSHAKE][ACC]: NO RESPONSE");
 					return;
 				}
 				// 消息，后面会使用
@@ -351,7 +351,7 @@ public class MyFrame extends JFrame {
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
-						logger.info("[界面][握手][接受]:" + inforAfter);
+						logger.info("[GUI][HANDSHAKE][ACC]:" + inforAfter);
 						String[] infos = inforAfter.split("\\\\");
 						// 目标控件
 						JPanel target = (JPanel) getComponent();
@@ -368,7 +368,7 @@ public class MyFrame extends JFrame {
 							dataModel.setValueAt(infos[i], i, 1);
 						}
 						table_Info.repaint();
-						logger.info("[界面][握手][重绘]:frame:" + inforAfter);
+						logger.info("[GUI][HANDSHAKE][repaint]:" + inforAfter);
 						frame.repaint();
 					}
 				});
@@ -376,7 +376,7 @@ public class MyFrame extends JFrame {
 		};
 		// 握手关键字
 		String macOrder = props.getProperty("HANDSHAKE_ORDER");
-		logger.info("[界面][握手][发送]:" + macOrder);
+		logger.info("[GUI][HANDSHAKE][SEND]:" + macOrder);
 		crcb.setOrderMessage(StringTransformUtil.hexToBytes(macOrder));
 		crcb.setPriority(0);
 		try {
@@ -580,8 +580,8 @@ public class MyFrame extends JFrame {
 					ComponentRepaintCallBack crcb = new ComponentRepaintCallBack(label_LaserON) {
 						@Override
 						public void execute(Object... objects) {
-
 							if (objects.length == 0) {
+								logger.info("[GUI][LASER][ACC]：NO RESPONSE");
 								return;
 							}
 							// 消息，后面会使用
@@ -592,11 +592,13 @@ public class MyFrame extends JFrame {
 								@Override
 								public void run() {
 									if (mess.getMessage().substring(10, 14).equalsIgnoreCase("b04c")) {
-										logger.info("[界面][激光]接受：" + JSON.toJSONString(mess) + " OFF--》green,ON-->dark");
+										logger.info("[GUI][LASER][ACC]：" + JSON.toJSONString(mess)
+												+ " OFF--》green,ON-->dark");
 										label_LaserON.setIcon(icon_dark);
 										label_LaserOFF.setIcon(icon_green);
 									} else {
-										logger.info("[界面][激光]接受：" + JSON.toJSONString(mess) + " OFF--》dark,ON-->green");
+										logger.info("[GUI][LASER][ACC]：" + JSON.toJSONString(mess)
+												+ " OFF--》dark,ON-->green");
 										label_LaserON.setIcon(icon_green);
 										label_LaserOFF.setIcon(icon_dark);
 									}
@@ -608,14 +610,13 @@ public class MyFrame extends JFrame {
 
 						}
 					};
-					// 55 aa 01 02 01 b0 4c 0d
+					// 55aa010201b04c0d
 					String macOrder = "55aa010201b04c0d";
 					crcb.setOrderMessage(StringTransformUtil.hexToBytes(macOrder));
 					crcb.setPriority(0);
 					try {
 						SerialPortFactory.sendMessage(crcb);
 					} catch (Exception e1) {
-						// TODO Auto-generated catch block
 						logger.error(e1);
 						e1.printStackTrace();
 					}
@@ -627,6 +628,7 @@ public class MyFrame extends JFrame {
 						public void execute(Object... objects) {
 
 							if (objects.length == 0) {
+								logger.info("[GUI][LASER][ACC]：NO RESPONSE");
 								return;
 							}
 							// 消息，后面会使用
@@ -636,12 +638,14 @@ public class MyFrame extends JFrame {
 							SwingUtilities.invokeLater(new Runnable() {
 								@Override
 								public void run() {
-									logger.info("[界面][激光]接受：" + JSON.toJSONString(mess) + " OFF--》green,ON-->dark");
+									logger.info(
+											"[GUI][LASER][ACC]：" + JSON.toJSONString(mess) + " OFF--》green,ON-->dark");
 									if (mess.getMessage().substring(10, 14).equalsIgnoreCase("b04c")) {
 										label_LaserON.setIcon(icon_dark);
 										label_LaserOFF.setIcon(icon_green);
 									} else {
-										logger.info("[界面][激光]接受：" + JSON.toJSONString(mess) + " OFF--》dark,ON-->green");
+										logger.info("[GUI][LASER][ACC]：" + JSON.toJSONString(mess)
+												+ " OFF--》dark,ON-->green");
 										label_LaserON.setIcon(icon_green);
 										label_LaserOFF.setIcon(icon_dark);
 									}
@@ -729,15 +733,15 @@ public class MyFrame extends JFrame {
 		panel_RS232_SR.add(panel_outputPower);
 
 		slider_outputPower = new JSlider(0, 100, 0);
-//		slider_outputPower.setSnapToTicks(true);
-//		slider_outputPower.setPaintTicks(true);
-//		slider_outputPower.setPaintLabels(true);
-//		slider_outputPower.setBackground(new Color(240, 255, 255));
-//		slider_outputPower.setEnabled(false);
-//		slider_outputPower.setMinorTickSpacing(1);
-//		slider_outputPower.setMajorTickSpacing(20);
-//		slider_outputPower.setBounds(10, 16, 300, 40);
-//		panel_outputPower.add(slider_outputPower);
+		// slider_outputPower.setSnapToTicks(true);
+		// slider_outputPower.setPaintTicks(true);
+		// slider_outputPower.setPaintLabels(true);
+		// slider_outputPower.setBackground(new Color(240, 255, 255));
+		// slider_outputPower.setEnabled(false);
+		// slider_outputPower.setMinorTickSpacing(1);
+		// slider_outputPower.setMajorTickSpacing(20);
+		// slider_outputPower.setBounds(10, 16, 300, 40);
+		// panel_outputPower.add(slider_outputPower);
 
 		textField_outputPower = new JFormattedTextField(NumberFormat.getIntegerInstance());
 		textField_outputPower.setText("0");
@@ -792,15 +796,15 @@ public class MyFrame extends JFrame {
 		panel_RS232_SR.add(panel_PRR_EM);
 
 		slider_PRR_EM = new JSlider(0, 2000, 100);
-//		slider_PRR_EM.setBackground(new Color(240, 255, 255));
-//		slider_PRR_EM.setSnapToTicks(true);
-//		slider_PRR_EM.setPaintTicks(true);
-//		slider_PRR_EM.setPaintLabels(true);
-//		slider_PRR_EM.setMinorTickSpacing(100);
-//		slider_PRR_EM.setMajorTickSpacing(400);
-//		slider_PRR_EM.setEnabled(false);
-//		slider_PRR_EM.setBounds(10, 16, 300, 40);
-//		panel_PRR_EM.add(slider_PRR_EM);
+		// slider_PRR_EM.setBackground(new Color(240, 255, 255));
+		// slider_PRR_EM.setSnapToTicks(true);
+		// slider_PRR_EM.setPaintTicks(true);
+		// slider_PRR_EM.setPaintLabels(true);
+		// slider_PRR_EM.setMinorTickSpacing(100);
+		// slider_PRR_EM.setMajorTickSpacing(400);
+		// slider_PRR_EM.setEnabled(false);
+		// slider_PRR_EM.setBounds(10, 16, 300, 40);
+		// panel_PRR_EM.add(slider_PRR_EM);
 
 		NumberFormat nf = NumberFormat.getIntegerInstance();
 		nf.setGroupingUsed(false);
@@ -915,9 +919,9 @@ public class MyFrame extends JFrame {
 				});
 				final boolean isOX = otherButton.isSelected();
 				if (isOX) {
-					logger.info("[界面][自定义命令][编码]:十六进制");
+					logger.info("[GUI][CUSTOM][CODE]:HEX");
 				} else {
-					logger.info("[界面][自定义命令][编码]:ASC");
+					logger.info("[GUI][CUSTOM][CODE]:ASC");
 				}
 
 				CommandLineCallBack crcb = new CommandLineCallBack(textField_ReplyFromDevice) {
@@ -925,17 +929,18 @@ public class MyFrame extends JFrame {
 					public void execute(Object... objects) {
 
 						if (objects.length == 0) {
+							logger.info("[GUI][CUSTOM][ACC]:NO RESPONSE");
 							return;
 						}
 						// 消息，后面会使用
 						final ReceiveMessage mess = (ReceiveMessage) objects[0];
-						logger.info("[界面][自定义命令][数据接受]:" + JSON.toJSONString(mess));
+						logger.info("[GUI][CUSTOM][ACC]:" + JSON.toJSONString(mess));
 						String value = "";
 						final PropertiesUtil props = PropertiesUtil.getDefaultOrderPro();
 						// ascii需要处理，这里是取反的
 						if (getCharset()) {
 							value = mess.getMessage();
-							logger.info("[界面][自定义命令][转换为十六进制]:" + value);
+							logger.info("[GUI][CUSTOM][DECODE->HEX]:" + value);
 							// 异常
 							if (props.getProperty("SC-5_ERROR_QUERY_ORDER")
 									.equalsIgnoreCase(StringTransformUtil.bytesToHexString(this.getOrderMessage()))
@@ -946,7 +951,7 @@ public class MyFrame extends JFrame {
 						} else {
 							try {
 								value = StringTransformUtil.hexStrToAsciiStr(mess.getMessage());
-								logger.info("[界面][自定义命令][转换为ascii]:" + value);
+								logger.info("[GUI][CUSTOM][DECODE->ASCII]:" + value);
 							} catch (Exception e) {
 								e.printStackTrace();
 								logger.error(e);
@@ -966,7 +971,7 @@ public class MyFrame extends JFrame {
 								// 目标控件
 								textField_ReplyFromDevice.setText(finalValue);
 								textField_ReplyFromDevice.repaint();
-								logger.info("[界面][自定义命令][重绘]:textField_ReplyFromDevice:" + finalValue);
+								logger.info("[GUI][CUSTOM][REPAINT]:textField_ReplyFromDevice:" + finalValue);
 
 							}
 						});
@@ -979,7 +984,7 @@ public class MyFrame extends JFrame {
 
 				if (!StringUtils.isEmpty(text)) {
 					try {
-						logger.info("[界面][自定义命令][发送]:"
+						logger.info("[GUI][CUSTOM][SEND]:"
 								+ StringTransformUtil.bytesToHexString(StringTransformUtil.asciiToBytes(text)));
 					} catch (UnsupportedEncodingException e2) {
 						logger.error(e2);
@@ -988,13 +993,13 @@ public class MyFrame extends JFrame {
 
 					if (isOX) {
 						if (!text.toUpperCase().endsWith("0D")) {
-							logger.info("[界面][自定义命令][无法发送HEX]没有0D");
+							logger.info("[GUI][CUSTOM][SEND-ERROR]ENDING NO '0D'");
 							return;
 						}
 						crcb.setOrderMessage(StringTransformUtil.hexToBytes(StringTransformUtil.replaceBlank(text)));
 						// 是否是16进制：是
 						crcb.setCharset(true);
-						logger.info("[界面][自定义命令][发送十六进制]:" + crcb.getOrderMessage());
+						logger.info("[GUI][CUSTOM][SEND][HEX]:" + crcb.getOrderMessage());
 					} else {
 						// 是否是16进制：否
 						crcb.setCharset(false);
@@ -1003,13 +1008,13 @@ public class MyFrame extends JFrame {
 							String n = "\n";
 							if (text.endsWith("\r\n")) {
 								finalText = text.substring(0, text.length() - n.length());
-								logger.info("[界面][自定义命令][发送asc]截尾OA");
+								logger.info("[GUI][CUSTOM][SEND][ASC] CUT 'OA'");
 							} else if (text.endsWith("\n")) {
 								finalText = text.substring(0, text.length() - n.length()) + c;
-								logger.info("[界面][自定义命令][发送asc]替换OA");
+								logger.info("[GUI][CUSTOM][SEND][ASC]REPLACE 'OA'");
 							} else if (!text.endsWith("\r")) {
 								finalText = text;
-								logger.info("[界面][自定义命令][无法发送ASC]没有0D");
+								logger.info("[GUI][CUSTOM][SEND-ERROR][ASC]ENDDING NO '0D'");
 								return;
 							}
 							crcb.setOrderMessage(StringTransformUtil.asciiToBytes(finalText));
@@ -1017,7 +1022,7 @@ public class MyFrame extends JFrame {
 							logger.error(e1);
 							e1.printStackTrace();
 						}
-						logger.info("[界面][自定义命令][发送asc]:" + crcb.getOrderMessage());
+						logger.info("[GUI][CUSTOM][SEND][ASC]:" + crcb.getOrderMessage());
 					}
 					crcb.setPriority(0);
 					try {
@@ -1805,7 +1810,6 @@ public class MyFrame extends JFrame {
 				} else {
 
 					SwingUtilities.invokeLater(new Runnable() {
-
 						@Override
 						public void run() {
 							// 关闭
@@ -1851,9 +1855,9 @@ public class MyFrame extends JFrame {
 	 */
 	private void disconnect() {
 		// 关闭连接
-		logger.info("[info]:触发disconnect事件");
+		logger.info("[info]:DISCONNECT EVENT");
 		String portName = getSelectedSerialPort();
-		logger.info("[info]:关闭当前连接");
+		logger.info("[info]:SHUTDOWN CONN");
 		SerialPortFactory.disConnect(portName);
 		timer.cancel();
 		// 优化点，连接后，选择框可选择
@@ -1875,7 +1879,7 @@ public class MyFrame extends JFrame {
 		String portName = getSelectedSerialPort();
 		// 非空判断
 		if (StringUtils.isEmpty(portName)) {
-			logger.error("端口号为空");
+			logger.error("PORT IS NULL");
 			return;
 		}
 		// 开始连接
@@ -1883,9 +1887,9 @@ public class MyFrame extends JFrame {
 			// 初始化连接对象
 			try {
 				SerialPortFactory.connect(portName);
-				logger.info("[INFO:" + portName + "端口已连接]");
+				logger.info("[INFO:" + portName + "PORT CONNECTED]");
 			} catch (Exception ex) {
-				logger.error("打开连接时发生异常", ex);
+				logger.error("EXCEPTION IN OPEN", ex);
 				logger.error(ex);
 				frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
 				return;
@@ -2063,13 +2067,14 @@ public class MyFrame extends JFrame {
 					public void execute(Object... objects) {
 
 						if (objects.length == 0) {
+							logger.info("[GUI][POWER SET][ACC]: NO RESPONSE");
 							return;
 						}
 						// 消息，后面会使用
 
 						// String mess = objects[0].toString();
 						final ReceiveMessage mess = (ReceiveMessage) objects[0];
-						logger.info("[界面][接受：power set]:" + mess);
+						logger.info("[GUI][POWER SET][ACC]:" + mess);
 						final String result = mess.getMessage().substring(10, 12);
 						// TODO 对返回的数据转换成数字
 						// 目标控件
@@ -2077,7 +2082,7 @@ public class MyFrame extends JFrame {
 							@Override
 							public void run() {
 								String result2 = Integer.valueOf(result, 16).toString();
-								logger.info("[界面][接受:power set][刷新]" + result2);
+								logger.info("[GUI][POWER SET][REPAINT]" + result2);
 								TableModel tablemodel = table_OperParam.getModel();
 								tablemodel.setValueAt(result2, 5, 1);
 								table_OperParam.repaint();
@@ -2135,13 +2140,14 @@ public class MyFrame extends JFrame {
 					public void execute(Object... objects) {
 
 						if (objects.length == 0) {
+							logger.info("[GUI][CUSTOM][PLUS][ACC]:NO RESPONSE");
 							return;
 						}
 						// 消息，后面会使用
 
 						// String mess = objects[0].toString();
 						final ReceiveMessage mess = (ReceiveMessage) objects[0];
-						logger.info("界面[接受：plus]:" + mess);
+						logger.info("[GUI][CUSTOM][PLUS][ACC]:" + mess);
 						final String result = mess.getMessage().substring(10, 14);
 						// TODO 对返回的数据转换成数字
 						// 目标控件
@@ -2149,7 +2155,7 @@ public class MyFrame extends JFrame {
 							@Override
 							public void run() {
 								String result2 = Integer.valueOf(result, 16).toString();
-								logger.info("界面[接受:plus]:准备刷新" + result2);
+								logger.info("[GUI][CUSTOM][PLUS][repaint]" + result2);
 								TableModel tablemodel = table_OperParam.getModel();
 								tablemodel.setValueAt(result2, 6, 1);
 								table_OperParam.repaint();
@@ -2158,16 +2164,15 @@ public class MyFrame extends JFrame {
 					}
 
 				};
-				// 握手关键字
 				String text = textField_plus.getText();
-				logger.info("[界面发送 plus]源命令：" + text);
+				logger.info("[GUI][CUSTOM][PLUS]SRC：" + text);
 				Integer value = Integer.valueOf(text);
 
 				String hex = getHexString(value, 4);
 
 				// 55 aa 01 03 01 xx xx 0d
 				String macOrder = "55aa010301" + hex + "0d";
-				logger.info("[界面发送 plus]发送命令：" + macOrder);
+				logger.info("[GUI][CUSTOM][PLUS][SEND]" + macOrder);
 				crcb.setOrderMessage(StringTransformUtil.hexToBytes(macOrder));
 				crcb.setPriority(0);
 				try {
